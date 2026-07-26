@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
-import { UserCircle, Heart, Menu, X } from "lucide-react";
+import { UserCircle, Heart, Menu, X, Bell } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -156,6 +156,13 @@ export default function Header() {
           {mounted && isAuthenticated ? (
             <>
               <Link
+                href="/notifications"
+                className="text-[#1d2567] hover:text-[#f7ae49] transition-colors p-2"
+              >
+                <Bell className="w-6 h-6" />
+              </Link>
+
+              <Link
                 href="/wishlist"
                 className="text-[#1d2567] hover:text-[#f7ae49] transition-colors p-2"
               >
@@ -190,12 +197,20 @@ export default function Header() {
         {/* Mobile Hamburger */}
         <div className="flex items-center gap-4 lg:hidden">
           {mounted && isAuthenticated && (
-            <Link
-              href="/profile"
-              className="text-[#1d2567] hover:text-[#f7ae49] transition-colors"
-            >
-              <UserCircle className="w-7 h-7" />
-            </Link>
+            <>
+              <Link
+                href="/notifications"
+                className="text-[#1d2567] hover:text-[#f7ae49] transition-colors"
+              >
+                <Bell className="w-6 h-6" />
+              </Link>
+              <Link
+                href="/profile"
+                className="text-[#1d2567] hover:text-[#f7ae49] transition-colors"
+              >
+                <UserCircle className="w-7 h-7" />
+              </Link>
+            </>
           )}
           <button
             className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-[#1d2567]/20 text-[#1d2567] hover:bg-[#1d2567] hover:text-white transition-colors"
@@ -255,14 +270,24 @@ export default function Header() {
               )}
 
               {mounted && isAuthenticated && (
-                <Link
-                  href="/wishlist"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 py-2 text-base font-medium text-[#1d2567] hover:text-[#f7ae49]"
-                >
-                  <Heart className="w-5 h-5" />
-                  My Wishlist
-                </Link>
+                <>
+                  <Link
+                    href="/notifications"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 py-2 text-base font-medium text-[#1d2567] hover:text-[#f7ae49]"
+                  >
+                    <Bell className="w-5 h-5" />
+                    Notifications
+                  </Link>
+                  <Link
+                    href="/wishlist"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 py-2 text-base font-medium text-[#1d2567] hover:text-[#f7ae49]"
+                  >
+                    <Heart className="w-5 h-5" />
+                    My Wishlist
+                  </Link>
+                </>
               )}
             </div>
           </motion.div>

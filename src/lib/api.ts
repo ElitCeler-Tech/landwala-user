@@ -379,6 +379,8 @@ export const landRegistrationApi = {
 };
 
 // Land Protection API Types
+export const LAND_AREA_UNITS = ["Sq. Yards", "Sq. Meters", "Guntas", "Acres"];
+
 export interface LandProtectionRequestData {
   fullName: string;
   phone: string;
@@ -387,6 +389,7 @@ export interface LandProtectionRequestData {
   landArea: string;
   location: string;
   pincode: string;
+  surveyNumbers?: string[];
 }
 
 export interface LandProtectionRequest {
@@ -597,13 +600,54 @@ export const layoutsApi = {
 };
 
 // Property Submission API Types
+// Category/unit lists frozen in sync with landwalaa-user's sell_property_screen.dart
+export const PROPERTY_CATEGORIES = [
+  "Open Plots",
+  "Residential House",
+  "Apartments",
+  "Villas",
+  "Farmhouse",
+  "Agriculture Land",
+  "Farmlands",
+] as const;
+
+export const UNITS_BY_CATEGORY: Record<string, string[]> = {
+  "Open Plots": ["Sq. Yards", "Sq. Meters"],
+  "Residential House": ["Sq. Ft", "Sq. Yards", "Sq. Meters"],
+  Apartments: ["Sq. Ft"],
+  Villas: ["Sq. Yards", "Sq. Ft"],
+  Farmhouse: ["Sq. Yards", "Acres", "Guntas"],
+  "Agriculture Land": ["Guntas", "Acres"],
+  Farmlands: ["Guntas", "Acres"],
+};
+
+export const PROPERTY_FACINGS = [
+  "East",
+  "West",
+  "North",
+  "South",
+  "North-East",
+  "North-West",
+  "South-East",
+  "South-West",
+];
+
 export interface PropertySubmissionData {
   title: string;
+  category: string;
+  listingType: string;
   size: string;
+  unit: string;
   facing: string;
-  description: string;
+  price: string;
+  priceNegotiable: "Yes" | "No";
+  description?: string;
+  location: string;
+  pincode?: string;
+  plotLocation?: string;
   image: File[];
   layoutImage: File[];
+  documents?: File[];
 }
 
 export interface PropertySubmissionResponse {
@@ -617,9 +661,17 @@ export const propertySubmissionApi = {
   ): Promise<PropertySubmissionResponse> => {
     const formData = new FormData();
     formData.append("title", data.title);
+    formData.append("category", data.category);
+    formData.append("listingType", data.listingType);
     formData.append("size", data.size);
+    formData.append("unit", data.unit);
     formData.append("facing", data.facing);
-    formData.append("description", data.description);
+    formData.append("price", data.price);
+    formData.append("priceNegotiable", data.priceNegotiable);
+    formData.append("location", data.location);
+    if (data.description) formData.append("description", data.description);
+    if (data.pincode) formData.append("pincode", data.pincode);
+    if (data.plotLocation) formData.append("plotLocation", data.plotLocation);
 
     if (data.image && data.image.length > 0) {
       data.image.forEach((file) => {
@@ -630,6 +682,12 @@ export const propertySubmissionApi = {
     if (data.layoutImage && data.layoutImage.length > 0) {
       data.layoutImage.forEach((file) => {
         formData.append("layoutImage", file);
+      });
+    }
+
+    if (data.documents && data.documents.length > 0) {
+      data.documents.forEach((file) => {
+        formData.append("documents", file);
       });
     }
 
@@ -761,5 +819,38 @@ export const searchApi = {
       params: { search: query },
     });
     return response.data;
+  },
+};
+
+// Notifications API Types
+export interface NotificationItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  time: string;
+  type: string;
+  isRead: boolean;
+}
+
+export interface NotificationGroup {
+  date: string;
+  items: NotificationItem[];
+}
+
+export interface NotificationsResponse {
+  data: {
+    groups: NotificationGroup[];
+  };
+}
+
+export const notificationsApi = {
+  getNotifications: async (
+    limit: number,
+    offset: number,
+  ): Promise<NotificationGroup[]> => {
+    const response = await api.get<NotificationsResponse>("/notifications", {
+      params: { limit, offset },
+    });
+    return response.data?.data?.groups ?? [];
   },
 };

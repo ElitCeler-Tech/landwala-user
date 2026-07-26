@@ -4,7 +4,54 @@ import Header from "@/components/Header";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import { ChevronLeft, ScanLine, ShieldCheck, FileCheck } from "lucide-react";
+import {
+  ChevronLeft,
+  ScanLine,
+  ShieldCheck,
+  FileCheck,
+  MapPin,
+  Camera,
+  PaintBucket,
+  Sparkles,
+} from "lucide-react";
+
+const FEATURES = [
+  {
+    icon: FileCheck,
+    title: "1. Ownership Verification",
+    desc: "We help you confirm the registered owner of the property.",
+  },
+  {
+    icon: MapPin,
+    title: "2. Boundary Stone Placement",
+    desc: "We place boundary stones around your land to clearly mark the property limits and keep your land protected.",
+  },
+  {
+    icon: Camera,
+    title: "3. Geo-Tagged Photo & Video Updates",
+    desc: "We capture regular geo-tagged photos and videos of your land every 15 days to keep you updated.",
+  },
+  {
+    icon: PaintBucket,
+    title: "4. Plot No. Painting",
+    desc: "We provide personal plot no. painting to mark and identify your land clearly, preventing confusion and disputes.",
+  },
+  {
+    icon: Sparkles,
+    title: "5. Plot Cleaning",
+    desc: "We provide plot cleaning services every 2 months to keep your land neat, clean, and well-maintained.",
+  },
+  {
+    icon: ScanLine,
+    title: "6. Survey Alignment Verification",
+    desc: "Our team confirms that your land boundaries are accurately marked according to government survey records.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "7. Encroachment Alerts",
+    desc: "LandWalaa notifies you if any unexpected activity is detected near your land, keeping you informed and protected.",
+  },
+];
 
 export default function LandProtectionPage() {
   return (
@@ -64,50 +111,19 @@ export default function LandProtectionPage() {
             </h3>
 
             <div className="flex flex-col gap-8">
-              <div className="flex items-start gap-5">
-                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                  <ScanLine className="text-white w-6 h-6" />
+              {FEATURES.map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="flex items-start gap-5">
+                  <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                    <Icon className="text-white w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-black text-lg mb-1">
+                      {title}
+                    </h4>
+                    <p className="text-black text-lg">{desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-black text-lg mb-1">
-                    1. On-Ground Monitoring
-                  </h4>
-                  <p className="text-black text-lg">
-                    • Monthly or bi-monthly site visits
-                    <br />• Photo & video documentation
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-5">
-                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                  <ShieldCheck className="text-white w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-black text-lg mb-1">
-                    2. Boundary & Encroachment Check
-                  </h4>
-                  <p className="text-black text-lg">
-                    • Survey alignment verification
-                    <br />• Encroachment alerts & reports
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-5">
-                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                  <FileCheck className="text-white w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-black text-lg mb-1">
-                    3. Legal & Compliance Support
-                  </h4>
-                  <p className="text-black text-lg">
-                    • Assistance with land documents
-                    <br />• Protection from disputes & claims
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
