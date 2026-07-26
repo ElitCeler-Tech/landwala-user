@@ -68,6 +68,136 @@ export const subscriptionPurchaseApi = {
   },
 };
 
+// Generic Payments API (used for Land Protection's size-based plan payments,
+// which are NOT subscription plans - see paymentsApi vs subscriptionPurchaseApi)
+export interface CreatePaymentOrderResponse {
+  orderId: string;
+  paymentSessionId: string;
+  orderAmount: number;
+  orderCurrency: string;
+}
+
+export interface VerifyPaymentResponse {
+  orderId: string;
+  orderStatus: string;
+  orderAmount: number;
+}
+
+export const paymentsApi = {
+  createOrder: async (
+    amount: number,
+    note?: string,
+  ): Promise<CreatePaymentOrderResponse> => {
+    const response = await api.post("/payments/order", { amount, note });
+    return response.data;
+  },
+
+  verifyPayment: async (orderId: string): Promise<VerifyPaymentResponse> => {
+    const response = await api.get("/payments/verify", {
+      params: { order_id: orderId },
+    });
+    return response.data;
+  },
+};
+
+// Pincode serviceability API
+export const pincodeApi = {
+  getAllServiceable: async (): Promise<Set<string>> => {
+    const codes = new Set<string>();
+    let page = 1;
+    let totalPages = 1;
+    while (page <= totalPages) {
+      const response = await api.get("/pincodes", {
+        params: { page, limit: 100 },
+      });
+      totalPages = response.data?.totalPages ?? 1;
+      const items: { pincode?: string }[] = response.data?.items ?? [];
+      items.forEach((item) => {
+        if (item.pincode) codes.add(item.pincode);
+      });
+      page++;
+    }
+    return codes;
+  },
+};
+
+// Land Protection size-based pricing plans, frozen in sync with
+// landwalaa-user's land_pricing_screen.dart
+export interface LandPricingPlan {
+  name: string;
+  range: string;
+  mrp: number;
+  offer: number;
+  features: string[];
+}
+
+export const LAND_PRICING_PLANS: LandPricingPlan[] = [
+  {
+    name: "Basic",
+    range: "100 – 300 Sq. Yards",
+    mrp: 18999,
+    offer: 16569,
+    features: [
+      "Monthly on-ground inspection & photo report",
+      "Boundary verification & encroachment alerts",
+      "Dedicated support via call & WhatsApp",
+    ],
+  },
+  {
+    name: "Premium",
+    range: "300 – 600 Sq. Yards",
+    mrp: 24999,
+    offer: 21999,
+    features: [
+      "Bi-monthly site visits with video documentation",
+      "Legal compliance check & dispute prevention",
+      "Priority support with dedicated land advisor",
+    ],
+  },
+  {
+    name: "Premium Plus",
+    range: "600 – 1000+ Sq. Yards",
+    mrp: 29999,
+    offer: 26999,
+    features: [
+      "Weekly monitoring with drone/photo survey",
+      "Full legal & compliance support with documentation",
+      "24/7 dedicated advisor & emergency response",
+    ],
+  },
+];
+
+export function convertToSqYards(value: number, unit: string): number {
+  switch (unit) {
+    case "Sq. Yards":
+      return value;
+    case "Sq. Meters":
+      return value * 1.19;
+    case "Guntas":
+      return value * 121;
+    case "Acres":
+      return -1;
+    default:
+      return value;
+  }
+}
+
+export function getPlanForSqYards(sqYards: number): LandPricingPlan | null {
+  if (sqYards < 100) return null;
+  if (sqYards <= 300) return LAND_PRICING_PLANS[0];
+  if (sqYards <= 600) return LAND_PRICING_PLANS[1];
+  return LAND_PRICING_PLANS[2];
+}
+
+export function exceedsMaxLandSize(size: number, unit: string): boolean {
+  const u = unit.toLowerCase();
+  if (u.includes("gunta") && size >= 10) return true;
+  if (u.includes("yard") && size >= 1200) return true;
+  if (u.includes("acre") && size >= 1) return true;
+  if (u.includes("meter") && size >= 1003) return true;
+  return false;
+}
+
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const tokens = useAuthStore.getState().tokens;
@@ -390,6 +520,7 @@ export interface LandProtectionRequestData {
   location: string;
   pincode: string;
   surveyNumbers?: string[];
+  isOutOfRange?: boolean;
 }
 
 export interface LandProtectionRequest {
