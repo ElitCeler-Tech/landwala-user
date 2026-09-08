@@ -20,7 +20,40 @@ export default function Home() {
       <Categories id="categories" />
       <PropertiesSection id="properties" title="Explore Nearby Properties" />
       <QuickActions id="quick-actions" />
-      <PropertiesSection title="Featured Listings" isFeatured={true} />
+      <PropertiesSection title="Featured Listings" variant="featured" />
+
+      {/* Discovery rails, in the same order the app shows them. Each hides
+          itself when the backend returns nothing (or 401s, as recently-viewed
+          does for signed-out visitors). */}
+      <PropertiesSection
+        title="Recently Viewed"
+        tag="🕐 Recently Viewed"
+        variant="recently-viewed"
+        layout="rail"
+        showViewAll={false}
+      />
+      <PropertiesSection
+        title="Trending Properties"
+        tag="📈 Trending"
+        variant="trending"
+        layout="rail"
+        showViewAll={false}
+      />
+      <PropertiesSection
+        title="Hot Sale"
+        tag="🔥 Hot Sale"
+        variant="hot-sale"
+        layout="rail"
+        showViewAll={false}
+      />
+      <PropertiesSection
+        title="Most Viewed"
+        tag="👁 Most Viewed"
+        variant="most-viewed"
+        layout="rail"
+        showViewAll={false}
+      />
+
       <Contact id="contact-us" />
       <DownloadApp />
       <Footer />

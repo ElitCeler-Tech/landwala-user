@@ -127,8 +127,10 @@ export default function LandProtectionPage() {
             </div>
           </div>
 
-          <Link href="/land-protection-quote" className="w-full">
-            <button className="w-full bg-[#1d2567] text-white font-semibold text-lg py-4 rounded-xl shadow-lg hover:opacity-90 transition-opacity">
+          {/* The app routes Continue through the walkthrough videos, which then
+              hand off to the quote form. */}
+          <Link href="/land-protection/videos" className="w-full">
+            <button className="w-full bg-[#1d2567] text-white font-semibold text-lg py-4 rounded-xl shadow-lg hover:opacity-90 transition-opacity cursor-pointer">
               Continue
             </button>
           </Link>

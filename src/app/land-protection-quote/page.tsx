@@ -12,12 +12,12 @@ import {
   paymentsApi,
   pincodeApi,
   convertToSqYards,
-  getPlanForSqYards,
+  resolvePlanForSqYards,
   exceedsMaxLandSize,
   LandPricingPlan,
   LAND_AREA_UNITS,
 } from "@/lib/api";
-import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const PENDING_KEY = "landProtectionPendingRequest";
 
@@ -29,13 +29,13 @@ interface PendingRequest {
   pincode: string;
   surveyNumbers: string[];
   planName: string;
+  planAmount: number;
 }
 
 function LandProtectionQuoteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
-  const { isAuthenticated } = useAuthStore();
 
   const [step, setStep] = useState<
     "details" | "plan" | "verifying" | "success" | "team-will-contact"
@@ -54,12 +54,7 @@ function LandProtectionQuoteContent() {
   const [surveyNumberInput, setSurveyNumberInput] = useState("");
   const [surveyNumbers, setSurveyNumbers] = useState<string[]>([]);
   const [plan, setPlan] = useState<LandPricingPlan | null>(null);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, router]);
+  const { requireAuth } = useRequireAuth();
 
   const submitRequest = useCallback(
     async (pending: PendingRequest, isOutOfRange: boolean) => {
@@ -74,6 +69,9 @@ function LandProtectionQuoteContent() {
         surveyNumbers:
           pending.surveyNumbers.length > 0 ? pending.surveyNumbers : undefined,
         isOutOfRange: isOutOfRange || undefined,
+        planTitle: !isOutOfRange && pending.planName ? pending.planName : undefined,
+        planAmount:
+          !isOutOfRange && pending.planName ? pending.planAmount : undefined,
       });
     },
     [],
@@ -138,6 +136,7 @@ function LandProtectionQuoteContent() {
 
   const handleContinue = async () => {
     setError("");
+    if (!requireAuth()) return;
     if (
       !formData.fullName.trim() ||
       !formData.phone.trim() ||
@@ -175,8 +174,12 @@ function LandProtectionQuoteContent() {
       const areaValue = parseFloat(formData.landAreaValue.trim()) || 0;
       const sqYards = convertToSqYards(areaValue, formData.areaUnit);
       const tooLarge = sqYards < 0 || exceedsMaxLandSize(areaValue, formData.areaUnit);
+      // Prices come from the admin-managed subscription plans, same source
+      // the app quotes from, with the built-in list as a fallback.
       const matchedPlan =
-        !isOutOfRange && !tooLarge ? getPlanForSqYards(sqYards) : null;
+        !isOutOfRange && !tooLarge
+          ? await resolvePlanForSqYards(sqYards)
+          : null;
 
       const pending: PendingRequest = {
         fullName: formData.fullName.trim(),
@@ -186,6 +189,7 @@ function LandProtectionQuoteContent() {
         pincode: pin,
         surveyNumbers,
         planName: matchedPlan?.name ?? "",
+        planAmount: matchedPlan?.offer ?? 0,
       };
 
       if (!matchedPlan) {

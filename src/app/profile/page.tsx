@@ -16,6 +16,10 @@ import {
   MapPin,
   Loader2,
   ChevronRight,
+  HelpCircle,
+  Sparkles,
+  Settings,
+  ClipboardList,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,6 +30,10 @@ import {
   LandProtectionRequest,
   loanApi,
   LoanApplicationResponse,
+  legalVerificationApi,
+  LegalVerificationResponse,
+  enquiriesApi,
+  EnquiryListItem,
   issueReportsApi,
   wishlistApi,
   WishlistItem,
@@ -116,6 +124,11 @@ export default function ProfilePage() {
   const [loanApplications, setLoanApplications] = useState<
     LoanApplicationResponse[]
   >([]);
+  const [legalVerifications, setLegalVerifications] = useState<
+    LegalVerificationResponse[]
+  >([]);
+  const [plotEnquiries, setPlotEnquiries] = useState<EnquiryListItem[]>([]);
+  const [layoutEnquiries, setLayoutEnquiries] = useState<EnquiryListItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -151,8 +164,15 @@ export default function ProfilePage() {
           } else if (subTab === "Loan Eligibility") {
             const data = await loanApi.getApplications();
             setLoanApplications(data.applications || []);
+          } else if (subTab === "Legal Verification") {
+            const data = await legalVerificationApi.getApplications();
+            setLegalVerifications(data.applications || []);
+          } else if (subTab === "Plot Enquiry" || subTab === "Layouts") {
+            // One /enquiries list serves both tabs, split by type as in the app.
+            const items = await enquiriesApi.list({ page: 1, limit: 100 });
+            setPlotEnquiries(items.filter((i) => i.type === "PROPERTY"));
+            setLayoutEnquiries(items.filter((i) => i.type === "LAYOUT"));
           }
-          // Add other fetches here as needed
         } catch (err) {
           console.error(`Failed to fetch data for ${subTab}`, err);
         } finally {
@@ -222,8 +242,8 @@ export default function ProfilePage() {
     "Layouts",
     "Land Registration",
     "Loan Eligibility",
+    "Legal Verification",
     "Plot Enquiry",
-    "My Documents",
   ];
 
   if (!mounted || !isAuthenticated || !user) {
@@ -235,6 +255,7 @@ export default function ProfilePage() {
     subtitle: string,
     footerText: string,
     id: string,
+    detailHref?: string,
   ) => (
     <div
       key={id}
@@ -249,9 +270,21 @@ export default function ProfilePage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <span className="text-sm text-gray-600 font-medium">{footerText}</span>
-        <button className="bg-[#1d2567] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#151b4d] transition-colors w-full sm:w-auto">
-          View Detail
-        </button>
+        {detailHref ? (
+          <button
+            onClick={() => router.push(detailHref)}
+            className="bg-[#1d2567] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#151b4d] transition-colors w-full sm:w-auto"
+          >
+            View Detail
+          </button>
+        ) : (
+          <button
+            disabled
+            className="bg-gray-200 text-gray-400 px-6 py-2.5 rounded-full text-sm font-medium w-full sm:w-auto cursor-not-allowed"
+          >
+            View Detail
+          </button>
+        )}
       </div>
     </div>
   );
@@ -274,6 +307,7 @@ export default function ProfilePage() {
               `${req.landArea || "N/A"} . ${req.id.substring(0, 8)}`,
               `Submitted On ${new Date(req.createdAt).toLocaleDateString()}`,
               req.id,
+              `/land-protection/${req.id}`,
             ),
           )
         ) : (
@@ -308,6 +342,54 @@ export default function ProfilePage() {
           )
         ) : (
           <EmptyState message="No loan applications found" />
+        );
+
+      case "Legal Verification":
+        return legalVerifications.length > 0 ? (
+          legalVerifications.map((app) =>
+            renderRequestCard(
+              "Legal Verification Request",
+              `Ref: ${app.id.substring(0, 8)}`,
+              `Status: ${app.status}`,
+              app.id,
+            ),
+          )
+        ) : (
+          <EmptyState message="No legal verification requests found" />
+        );
+
+      case "Plot Enquiry":
+        return plotEnquiries.length > 0 ? (
+          plotEnquiries.map((enq) =>
+            renderRequestCard(
+              enq.property?.title || "Plot Enquiry",
+              enq.property?.locationAddress ||
+                enq.property?.priceRange ||
+                `Ref: ${enq.id.substring(0, 8)}`,
+              `Submitted On ${new Date(enq.createdAt).toLocaleDateString()}`,
+              enq.id,
+              enq.property?.id
+                ? `/property-details/${enq.property.id}`
+                : undefined,
+            ),
+          )
+        ) : (
+          <EmptyState message="No plot enquiries found" />
+        );
+
+      case "Layouts":
+        return layoutEnquiries.length > 0 ? (
+          layoutEnquiries.map((enq) =>
+            renderRequestCard(
+              enq.layout?.title || "Layout Enquiry",
+              enq.layout?.location || `Ref: ${enq.id.substring(0, 8)}`,
+              `Submitted On ${new Date(enq.createdAt).toLocaleDateString()}`,
+              enq.id,
+              enq.layout?.id ? `/layouts/${enq.layout.id}` : undefined,
+            ),
+          )
+        ) : (
+          <EmptyState message="No layout enquiries found" />
         );
 
       default:
@@ -354,6 +436,51 @@ export default function ProfilePage() {
                   {item.label}
                 </button>
               ))}
+
+              {/* Plan card, as shown in the app's profile. There is no
+                  per-user active-plan endpoint yet, so this points at the
+                  Land Protection purchase flow. */}
+              <div className="mx-4 my-3 rounded-xl bg-gradient-to-r from-[#1d2567] to-[#000a58] p-4 flex items-center gap-3">
+                <Sparkles className="w-6 h-6 shrink-0 text-white" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-white">Your Plan</p>
+                  <p className="text-xs text-white/70">No active plan</p>
+                </div>
+                <Link
+                  href="/land-protection"
+                  className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#1d2567]"
+                >
+                  Upgrade
+                </Link>
+              </div>
+
+              {/* Pages the app reaches from its profile menu. These are real
+                  routes rather than tabs, so they navigate. */}
+              <div className="border-t border-gray-100 mt-2 pt-2">
+                {[
+                  {
+                    icon: ClipboardList,
+                    label: "My Reports",
+                    href: "/my-reports",
+                  },
+                  { icon: HelpCircle, label: "FAQs", href: "/faqs" },
+                  {
+                    icon: Sparkles,
+                    label: "Why Choose Us",
+                    href: "/why-choose-us",
+                  },
+                  { icon: Settings, label: "Settings", href: "/settings" },
+                ].map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="w-full flex items-center gap-3 px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
 
               <button
                 onClick={handleLogout}

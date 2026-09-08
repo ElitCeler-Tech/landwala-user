@@ -6,7 +6,12 @@ import ExploreHero from "@/components/ExploreHero";
 import PropertyResultCard from "@/components/PropertyResultCard";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import { propertiesApi, Property, PropertiesMeta } from "@/lib/api";
+import {
+  propertiesApi,
+  exploreCategoriesApi,
+  Property,
+  PropertiesMeta,
+} from "@/lib/api";
 
 export default function ExploreResultsPage() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -14,14 +19,37 @@ export default function ExploreResultsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [categories, setCategories] = useState<string[]>(["All"]);
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  // Admin-managed category chips, the same GET /explore-categories row the
+  // app shows above its explore listing. Falls back to "All" only.
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const items = await exploreCategoriesApi.list();
+        const names = items
+          .map((c) => c.name)
+          .filter((name) => name && name.length > 0);
+        if (names.length) setCategories(["All", ...names]);
+      } catch {
+        // Leave the chip row with just "All".
+      }
+    };
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await propertiesApi.getProperties({
           page,
           limit: 10,
+          ...(activeCategory === "All"
+            ? {}
+            : { propertyType: activeCategory }),
         });
         setProperties(response.data);
         setMeta(response.meta);
@@ -34,7 +62,7 @@ export default function ExploreResultsPage() {
     };
 
     fetchProperties();
-  }, [page]);
+  }, [page, activeCategory]);
 
   return (
     <main className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -42,7 +70,30 @@ export default function ExploreResultsPage() {
       <ExploreHero />
 
       <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
-        <div className="flex items-center justify-between mb-8">
+        {categories.length > 1 && (
+          <div className="-mx-4 px-4 md:mx-0 md:px-0 flex gap-2 overflow-x-auto pb-2 mb-8">
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => {
+                  setActiveCategory(category);
+                  setPage(1);
+                }}
+                aria-pressed={activeCategory === category}
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors cursor-pointer ${
+                  activeCategory === category
+                    ? "bg-[#2e3675] text-white border-[#2e3675]"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-[#2e3675]"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-8">
           <h2 className="text-2xl font-bold text-gray-800">
             Search results {meta ? `(${meta.total})` : ""}
           </h2>

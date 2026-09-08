@@ -7,9 +7,19 @@ import Image from "next/image";
 import { Heart, ChevronRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { wishlistApi, WishlistItem } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
 
-const WishlistCard = ({ item }: { item: WishlistItem }) => {
+const WishlistCard = ({
+  item,
+  onRemove,
+  removing,
+}: {
+  item: WishlistItem;
+  onRemove: (id: string) => void;
+  removing: boolean;
+}) => {
   const isLayout = item.type === "LAYOUT" && item.layout;
   const isProperty = item.type === "PROPERTY" && item.property;
 
@@ -45,9 +55,19 @@ const WishlistCard = ({ item }: { item: WishlistItem }) => {
           className="object-cover rounded-2xl"
           unoptimized
         />
-        {/* Heart Icon - could implementation removal here later */}
-        <button className="absolute bottom-3 right-3 text-red-500 hover:scale-110 transition-transform">
-          <Heart className="w-6 h-6 fill-current" />
+        {/* Tapping the filled heart removes the item, as it does in the app. */}
+        <button
+          type="button"
+          onClick={() => onRemove(item.id)}
+          disabled={removing}
+          aria-label="Remove from wishlist"
+          className="absolute bottom-3 right-3 text-red-500 hover:scale-110 transition-transform disabled:opacity-50 cursor-pointer"
+        >
+          {removing ? (
+            <Loader2 className="w-6 h-6 animate-spin" />
+          ) : (
+            <Heart className="w-6 h-6 fill-current" />
+          )}
         </button>
       </div>
 
@@ -84,10 +104,26 @@ const WishlistCard = ({ item }: { item: WishlistItem }) => {
 };
 
 export default function WishlistPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      router.push("/login?redirect=%2Fwishlist");
+    }
+  }, [mounted, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchWishlist = async () => {
       try {
         setLoading(true);
@@ -104,7 +140,23 @@ export default function WishlistPage() {
     };
 
     fetchWishlist();
-  }, []);
+  }, [isAuthenticated]);
+
+  const handleRemove = async (wishlistItemId: string) => {
+    setRemovingId(wishlistItemId);
+    const previous = wishlistItems;
+    setWishlistItems((current) =>
+      current.filter((i) => i.id !== wishlistItemId),
+    );
+    try {
+      await wishlistApi.removeById(wishlistItemId);
+    } catch (error) {
+      console.error("Failed to remove wishlist item:", error);
+      setWishlistItems(previous);
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
@@ -122,7 +174,12 @@ export default function WishlistPage() {
         ) : wishlistItems.length > 0 ? (
           <div className="max-w-5xl mx-auto space-y-8">
             {wishlistItems.map((item) => (
-              <WishlistCard key={item.id} item={item} />
+              <WishlistCard
+                key={item.id}
+                item={item}
+                onRemove={handleRemove}
+                removing={removingId === item.id}
+              />
             ))}
           </div>
         ) : (

@@ -21,6 +21,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { propertiesApi, Property, enquiriesApi } from "@/lib/api";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function PropertyDetailsPage() {
   const params = useParams();
@@ -32,6 +33,7 @@ export default function PropertyDetailsPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [enquiryLoading, setEnquiryLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const { requireAuth } = useRequireAuth();
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -60,6 +62,13 @@ export default function PropertyDetailsPage() {
     };
 
     fetchProperty();
+  }, [propertyId]);
+
+  // Record the view so this property feeds the home page's Recently Viewed
+  // rail and its Most Viewed ranking, as the app does on its detail screen.
+  useEffect(() => {
+    if (!propertyId) return;
+    propertiesApi.trackView(propertyId);
   }, [propertyId]);
 
   if (loading) {
@@ -112,6 +121,7 @@ export default function PropertyDetailsPage() {
 
   const handleEnquiry = async () => {
     if (!propertyId || enquiryLoading) return;
+    if (!requireAuth()) return;
 
     try {
       setEnquiryLoading(true);

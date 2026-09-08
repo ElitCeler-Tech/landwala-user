@@ -3,8 +3,8 @@
 import { Heart, MapPin, Ruler, Grid3X3 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Property, wishlistApi } from "@/lib/api";
-import { useState } from "react";
+import { Property } from "@/lib/api";
+import { useWishlist } from "@/hooks/useWishlist";
 
 interface LegacyPropertyProps {
   id?: string | number;
@@ -53,27 +53,17 @@ export default function PropertyResultCard({
   const area = sizeField?.value || (isApi ? undefined : property.area);
   const propertyType = typeField?.value || "Land";
 
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // Shared hook so the heart reflects what is actually saved and can also
+  // un-favourite, matching the app. Legacy (non-API) cards have no real id,
+  // so their heart stays inert.
+  const { isWishlisted: isSaved, toggle } = useWishlist("PROPERTY");
+  const isWishlisted = isApi && property.id ? isSaved(property.id) : false;
 
-  const handleWishlist = async (e: React.MouseEvent) => {
+  const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (!isApi || !property.id) return;
-
-    try {
-      setLoading(true);
-      await wishlistApi.add({
-        type: "PROPERTY",
-        propertyId: property.id,
-      });
-      setIsWishlisted(true);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    toggle(property.id);
   };
 
   return (
@@ -101,7 +91,8 @@ export default function PropertyResultCard({
       <div className="p-6 md:w-3/5 flex flex-col justify-between relative">
         <button
           onClick={handleWishlist}
-          disabled={loading}
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={isWishlisted}
           className="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
         >
           <Heart
