@@ -44,6 +44,9 @@ export default function Footer() {
                 { name: "Properties", href: "/#properties" },
                 { name: "Our Categories", href: "/#categories" },
                 { name: "Quick Actions", href: "/#quick-actions" },
+                { name: "About Us", href: "/about-us" },
+                { name: "Why Choose Us", href: "/why-choose-us" },
+                { name: "FAQs", href: "/faqs" },
                 { name: "Contact Us", href: "/#contact-us" },
               ].map((link) => (
                 <li key={link.name}>

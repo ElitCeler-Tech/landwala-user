@@ -3,13 +3,13 @@
 import { ChevronDown, CloudUpload, Loader2, X } from "lucide-react";
 import { useState } from "react";
 import { loanApi, LoanApplicationData } from "@/lib/api";
-import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useRouter } from "next/navigation";
 import SuccessModal from "@/components/SuccessModal";
 
 export default function LoanEligibilityForm() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { requireAuth } = useRequireAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -51,10 +51,7 @@ export default function LoanEligibilityForm() {
   };
 
   const handleSubmit = async () => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
+    if (!requireAuth()) return;
 
     if (
       !formData.fullName ||

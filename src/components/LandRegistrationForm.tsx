@@ -3,13 +3,13 @@
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { landRegistrationApi, LandRegistrationSubmitData } from "@/lib/api";
-import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useRouter } from "next/navigation";
 import SuccessModal from "@/components/SuccessModal";
 
 export default function LandRegistrationForm() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { requireAuth } = useRequireAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -44,10 +44,7 @@ export default function LandRegistrationForm() {
   };
 
   const handleSubmit = async () => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
+    if (!requireAuth()) return;
 
     if (!formData.location || !formData.plotType) {
       setError("Please fill in all required fields");

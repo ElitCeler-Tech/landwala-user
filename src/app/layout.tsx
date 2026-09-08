@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google"; // turbo
+import AuthGateModal from "@/components/AuthGateModal";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -20,7 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} antialiased`}>{children}</body>
+      <body className={`${poppins.variable} antialiased`}>
+        {children}
+        <AuthGateModal />
+      </body>
     </html>
   );
 }

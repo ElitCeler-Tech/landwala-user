@@ -24,6 +24,7 @@ export default function Header() {
       { id: "categories", label: "Categories", href: "/#categories" },
       { id: "properties", label: "Properties", href: "/#properties" },
       { id: "quick-actions", label: "Quick Actions", href: "/#quick-actions" },
+      { id: "about-us", label: "About Us", href: "/about-us" },
       { id: "contact-us", label: "Contact us", href: "/#contact-us" },
     ],
     [],
@@ -51,6 +52,10 @@ export default function Header() {
     e: React.MouseEvent<HTMLAnchorElement>,
     sectionId: string,
   ) => {
+    if (sectionId === "about-us") {
+      setMobileOpen(false);
+      return;
+    }
     if (pathname === "/") {
       e.preventDefault();
       scrollToSection(sectionId);

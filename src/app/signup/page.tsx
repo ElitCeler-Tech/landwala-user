@@ -15,6 +15,7 @@ function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isCompleting = searchParams.get("complete") === "true";
+  const redirectPath = searchParams.get("redirect") || "/";
 
   const {
     login,
@@ -43,6 +44,7 @@ function SignUpForm() {
   });
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // Set mounted flag and handle initial step based on URL
   useEffect(() => {
@@ -68,16 +70,16 @@ function SignUpForm() {
       user &&
       !user.isNewUser
     ) {
-      router.push("/");
+      router.push(redirectPath);
     }
-  }, [mounted, isAuthenticated, isCompleting, router, user]);
+  }, [mounted, isAuthenticated, isCompleting, router, user, redirectPath]);
 
   // Redirect to login if trying to complete but not authenticated
   useEffect(() => {
     if (mounted && step === 3 && !isAuthenticated) {
-      router.push("/login"); // Or maybe back to step 1?
+      router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
     }
-  }, [mounted, step, isAuthenticated, router]);
+  }, [mounted, step, isAuthenticated, router, redirectPath]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -113,10 +115,12 @@ function SignUpForm() {
       );
 
       if (response.user.isNewUser) {
-        router.push("/signup?complete=true");
+        router.push(
+          `/signup?complete=true&redirect=${encodeURIComponent(redirectPath)}`,
+        );
         // Step will update via useEffect on isCompleting
       } else {
-        router.push("/");
+        router.push(redirectPath);
       }
     } catch (err) {
       console.error("Google signup error:", err);
@@ -139,9 +143,38 @@ function SignUpForm() {
       await authApi.signup({ email, password });
       setStep(2); // Move to OTP step
       setError(""); // Clear any previous errors
+      startResendCooldown();
     } catch (err: any) {
       console.error("Signup error:", err);
       setError(err.response?.data?.message || "Failed to initiate signup.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const startResendCooldown = () => {
+    setResendCooldown(30);
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+    try {
+      setLoading(true);
+      setError("");
+      await authApi.resendOtp(email);
+      startResendCooldown();
+    } catch (err: any) {
+      console.error("Resend OTP error:", err);
+      setError(err.response?.data?.message || "Failed to resend OTP.");
     } finally {
       setLoading(false);
     }
@@ -178,7 +211,9 @@ function SignUpForm() {
       );
 
       // Move to completion step
-      router.push("/signup?complete=true");
+      router.push(
+        `/signup?complete=true&redirect=${encodeURIComponent(redirectPath)}`,
+      );
     } catch (err: any) {
       console.error("OTP Verification error:", err);
       setError(err.response?.data?.message || "Invalid OTP. Please try again.");
@@ -229,10 +264,16 @@ function SignUpForm() {
         await authApi.register(userData);
         updateUser(userData);
 
-        router.push("/");
+        router.push(redirectPath);
       } else {
         setError("Session expired. Please login again.");
-        setTimeout(() => router.push("/login"), 2000);
+        setTimeout(
+          () =>
+            router.push(
+              `/login?redirect=${encodeURIComponent(redirectPath)}`,
+            ),
+          2000,
+        );
       }
     } catch (err) {
       console.error("Registration error:", err);
@@ -388,7 +429,7 @@ function SignUpForm() {
                       Already Have An Account ?{" "}
                     </span>
                     <Link
-                      href="/login"
+                      href={`/login?redirect=${encodeURIComponent(redirectPath)}`}
                       className="text-[#1d2567] font-semibold text-sm hover:underline"
                     >
                       Log In
@@ -416,6 +457,18 @@ function SignUpForm() {
                     onChange={(e) => setOtp(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-[#2D336B] transition-colors text-gray-700 placeholder:text-gray-400 bg-white"
                   />
+                  <div className="text-right mt-2">
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={resendCooldown > 0 || isLoading}
+                      className="text-sm text-blue-500 hover:text-blue-700 font-medium disabled:text-gray-400"
+                    >
+                      {resendCooldown > 0
+                        ? `Resend OTP in ${resendCooldown}s`
+                        : "Resend OTP"}
+                    </button>
+                  </div>
                 </div>
 
                 <button

@@ -13,6 +13,7 @@ import {
   enquiriesApi,
   wishlistApi,
 } from "@/lib/api";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
   MapPin,
   Loader2,
@@ -231,8 +232,11 @@ export default function LayoutDetailsPage() {
     [layout],
   );
 
+  const { requireAuth } = useRequireAuth();
+
   const handleWishlist = async () => {
     if (!layout) return;
+    if (!requireAuth()) return;
     try {
       setWishlistLoading(true);
       await wishlistApi.add({
@@ -249,6 +253,7 @@ export default function LayoutDetailsPage() {
 
   const handleEnquiry = async (slot: LayoutSlot) => {
     if (enquiryLoading || !layout) return;
+    if (!requireAuth()) return;
 
     try {
       setEnquiryLoading(true);

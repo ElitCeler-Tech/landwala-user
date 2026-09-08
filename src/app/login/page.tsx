@@ -4,15 +4,17 @@ import { AxiosError } from "axios";
 import Header from "@/components/Header";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || "/";
   const { login, isAuthenticated, setLoading, isLoading, user } =
     useAuthStore();
 
@@ -23,9 +25,9 @@ export default function LoginPage() {
   // Redirect if already authenticated (and user is not new)
   useEffect(() => {
     if (isAuthenticated && !user?.isNewUser) {
-      router.push("/");
+      router.push(redirectPath);
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, redirectPath]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -48,9 +50,11 @@ export default function LoginPage() {
 
       // Check if user needs to complete registration
       if (response.user.isNewUser) {
-        router.push("/signup?complete=true");
+        router.push(
+          `/signup?complete=true&redirect=${encodeURIComponent(redirectPath)}`,
+        );
       } else {
-        router.push("/");
+        router.push(redirectPath);
       }
     } catch (err: unknown) {
       console.error("Google login error:", err);
@@ -85,9 +89,11 @@ export default function LoginPage() {
       });
 
       if (response.user.isNewUser) {
-        router.push("/signup?complete=true");
+        router.push(
+          `/signup?complete=true&redirect=${encodeURIComponent(redirectPath)}`,
+        );
       } else {
-        router.push("/");
+        router.push(redirectPath);
       }
     } catch (err: unknown) {
       console.error("Login error:", err);
@@ -168,7 +174,7 @@ export default function LoginPage() {
                   />
                   <div className="text-right mt-2">
                     <Link
-                      href="/forgot-password"
+                      href={`/forgot-password?redirect=${encodeURIComponent(redirectPath)}`}
                       className="text-sm text-blue-500 hover:text-blue-700 font-medium"
                     >
                       Forgot Password?
@@ -226,7 +232,7 @@ export default function LoginPage() {
                   Don&apos;t Have An Account?{" "}
                 </span>
                 <Link
-                  href="/signup"
+                  href={`/signup?redirect=${encodeURIComponent(redirectPath)}`}
                   className="text-blue-500 font-medium text-sm hover:underline"
                 >
                   Create Account
@@ -237,5 +243,13 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

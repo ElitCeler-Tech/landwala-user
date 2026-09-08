@@ -8,9 +8,11 @@ import SuccessModal from "@/components/SuccessModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Contact from "@/components/Contact";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function ReportIssuePage() {
   const router = useRouter();
+  const { requireAuth } = useRequireAuth();
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,7 @@ export default function ReportIssuePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!category || !description) return;
+    if (!requireAuth()) return;
 
     try {
       setLoading(true);
