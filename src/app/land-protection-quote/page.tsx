@@ -36,6 +36,9 @@ function LandProtectionQuoteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
+  // Set when arriving from an admin-approved out-of-range request in My
+  // Requests, so the visitor does not retype details already on file.
+  const fromRequestId = searchParams.get("fromRequest");
 
   const [step, setStep] = useState<
     "details" | "plan" | "verifying" | "success" | "team-will-contact"
@@ -54,7 +57,43 @@ function LandProtectionQuoteContent() {
   const [surveyNumberInput, setSurveyNumberInput] = useState("");
   const [surveyNumbers, setSurveyNumbers] = useState<string[]>([]);
   const [plan, setPlan] = useState<LandPricingPlan | null>(null);
+  const [prefilling, setPrefilling] = useState(Boolean(fromRequestId));
   const { requireAuth } = useRequireAuth();
+
+  // Prefill from the existing request. The visitor still confirms and pays
+  // through the normal flow, which is what creates the paid request; the
+  // original out-of-range record is left untouched, as in the app.
+  useEffect(() => {
+    if (!fromRequestId) return;
+    let cancelled = false;
+    const prefill = async () => {
+      try {
+        const request = await landProtectionApi.getRequestById(fromRequestId);
+        if (cancelled) return;
+        // landArea is stored as free text, e.g. "300 Sq. Yards".
+        const match = request.landArea?.trim().match(/^([\d.]+)\s*(.*)$/);
+        const unit = LAND_AREA_UNITS.find(
+          (u) => u.toLowerCase() === (match?.[2] ?? "").trim().toLowerCase(),
+        );
+        setFormData({
+          fullName: request.fullName ?? "",
+          phone: request.phone ?? "",
+          location: request.landLocation || request.location || "",
+          landAreaValue: match?.[1] ?? "",
+          areaUnit: unit ?? LAND_AREA_UNITS[0],
+          pincode: request.pincode ?? "",
+        });
+      } catch (err) {
+        console.error("Could not prefill from the existing request", err);
+      } finally {
+        if (!cancelled) setPrefilling(false);
+      }
+    };
+    prefill();
+    return () => {
+      cancelled = true;
+    };
+  }, [fromRequestId]);
 
   const submitRequest = useCallback(
     async (pending: PendingRequest, isOutOfRange: boolean) => {
@@ -318,6 +357,15 @@ function LandProtectionQuoteContent() {
             Back
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (prefilling) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center pt-32">
+        <Loader2 className="w-10 h-10 animate-spin text-[#1d2567]" />
+        <p className="mt-4 text-gray-500">Loading your request...</p>
       </div>
     );
   }

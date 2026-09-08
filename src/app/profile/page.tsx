@@ -256,6 +256,7 @@ export default function ProfilePage() {
     footerText: string,
     id: string,
     detailHref?: string,
+    payHref?: string,
   ) => (
     <div
       key={id}
@@ -270,6 +271,17 @@ export default function ProfilePage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <span className="text-sm text-gray-600 font-medium">{footerText}</span>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        {/* Out-of-range requests an admin has since approved can be paid for,
+            matching the app's Pay Now action in My Requests. */}
+        {payHref && (
+          <button
+            onClick={() => router.push(payHref)}
+            className="bg-green-600 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-green-700 transition-colors w-full sm:w-auto"
+          >
+            Pay Now
+          </button>
+        )}
         {detailHref ? (
           <button
             onClick={() => router.push(detailHref)}
@@ -285,6 +297,7 @@ export default function ProfilePage() {
             View Detail
           </button>
         )}
+        </div>
       </div>
     </div>
   );
@@ -308,6 +321,9 @@ export default function ProfilePage() {
               `Submitted On ${new Date(req.createdAt).toLocaleDateString()}`,
               req.id,
               `/land-protection/${req.id}`,
+              req.isOutOfRange && req.adminApproved
+                ? `/land-protection-quote?fromRequest=${req.id}`
+                : undefined,
             ),
           )
         ) : (

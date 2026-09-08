@@ -618,6 +618,11 @@ export interface LandProtectionRequest {
   location: string;
   pincode: string;
   status: string;
+  /** Submitted without payment because the pincode was outside service range. */
+  isOutOfRange: boolean;
+  /** Set when an admin has since agreed to service it, which unlocks payment. */
+  adminApproved: boolean;
+  adminApprovedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
