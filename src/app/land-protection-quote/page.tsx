@@ -32,6 +32,53 @@ interface PendingRequest {
   planAmount: number;
 }
 
+function FileField({
+  id,
+  label,
+  file,
+  onSelect,
+}: {
+  id: string;
+  label: string;
+  file: File | null;
+  onSelect: (f: File | null) => void;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="flex items-center justify-between gap-3 w-full border border-dashed border-gray-300 rounded-xl px-5 py-4 cursor-pointer hover:border-[#2D336B] transition-colors bg-white"
+      >
+        <span className="min-w-0">
+          <span className="block text-gray-700">{label}</span>
+          <span className="block text-xs text-gray-400 truncate">
+            {file ? file.name : "Optional. Image or PDF"}
+          </span>
+        </span>
+        <span className="shrink-0 text-sm font-medium text-[#2D336B]">
+          {file ? "Change" : "Upload"}
+        </span>
+      </label>
+      <input
+        id={id}
+        type="file"
+        accept="image/*,application/pdf"
+        className="hidden"
+        onChange={(e) => onSelect(e.target.files?.[0] ?? null)}
+      />
+      {file && (
+        <button
+          type="button"
+          onClick={() => onSelect(null)}
+          className="mt-2 text-xs text-red-500 hover:text-red-600"
+        >
+          Remove
+        </button>
+      )}
+    </div>
+  );
+}
+
 function LandProtectionQuoteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,6 +104,9 @@ function LandProtectionQuoteContent() {
   const [surveyNumberInput, setSurveyNumberInput] = useState("");
   const [surveyNumbers, setSurveyNumbers] = useState<string[]>([]);
   const [plan, setPlan] = useState<LandPricingPlan | null>(null);
+  const [landLayoutFile, setLandLayoutFile] = useState<File | null>(null);
+  const [landDimensionFile, setLandDimensionFile] = useState<File | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
   const [prefilling, setPrefilling] = useState(Boolean(fromRequestId));
   const { requireAuth } = useRequireAuth();
 
@@ -95,9 +145,13 @@ function LandProtectionQuoteContent() {
     };
   }, [fromRequestId]);
 
+  // Creates the request immediately, before any payment. This is what puts the
+  // details and the customer's documents in front of admin even when the
+  // payment is abandoned, and it is the only point at which the File objects
+  // still exist: they cannot survive the Cashfree redirect via sessionStorage.
   const submitRequest = useCallback(
-    async (pending: PendingRequest, isOutOfRange: boolean) => {
-      await landProtectionApi.requestQuote({
+    async (pending: PendingRequest, isOutOfRange: boolean): Promise<string> => {
+      const created = await landProtectionApi.requestQuote({
         fullName: pending.fullName,
         phone: pending.phone,
         countryCode: "+91",
@@ -108,12 +162,12 @@ function LandProtectionQuoteContent() {
         surveyNumbers:
           pending.surveyNumbers.length > 0 ? pending.surveyNumbers : undefined,
         isOutOfRange: isOutOfRange || undefined,
-        planTitle: !isOutOfRange && pending.planName ? pending.planName : undefined,
-        planAmount:
-          !isOutOfRange && pending.planName ? pending.planAmount : undefined,
+        landLayout: landLayoutFile,
+        landDimension: landDimensionFile,
       });
+      return created.id;
     },
-    [],
+    [landLayoutFile, landDimensionFile],
   );
 
   // Returning from Cashfree checkout redirect
@@ -123,9 +177,9 @@ function LandProtectionQuoteContent() {
     const verify = async () => {
       setStep("verifying");
       try {
-        const raw = sessionStorage.getItem(PENDING_KEY);
-        const pending: PendingRequest | null = raw ? JSON.parse(raw) : null;
-
+        // The request already exists and the order carries its id, so
+        // verification is all that is needed. The backend marks the request
+        // paid from what Cashfree reports, not from anything sent here.
         const result = await paymentsApi.verifyPayment(orderId);
         if (result.orderStatus !== "PAID") {
           setError(`Payment not confirmed. Status: ${result.orderStatus}`);
@@ -133,16 +187,6 @@ function LandProtectionQuoteContent() {
           return;
         }
 
-        if (!pending) {
-          setError(
-            "Payment succeeded but we lost track of your request details. Please contact support with your order ID: " +
-              orderId,
-          );
-          setStep("details");
-          return;
-        }
-
-        await submitRequest(pending, false);
         sessionStorage.removeItem(PENDING_KEY);
         setStep("success");
       } catch (err) {
@@ -153,7 +197,7 @@ function LandProtectionQuoteContent() {
     };
 
     verify();
-  }, [orderId, submitRequest]);
+  }, [orderId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -231,12 +275,16 @@ function LandProtectionQuoteContent() {
         planAmount: matchedPlan?.offer ?? 0,
       };
 
+      // Create the request now, whichever way this goes. An abandoned payment
+      // then still leaves the full details and documents with admin.
+      const createdId = await submitRequest(pending, !matchedPlan);
+      setRequestId(createdId);
+
       if (!matchedPlan) {
-        await submitRequest(pending, true);
         setStep("team-will-contact");
       } else {
         setPlan(matchedPlan);
-        sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+        sessionStorage.setItem(PENDING_KEY, createdId);
         setStep("plan");
       }
     } catch (err) {
@@ -255,6 +303,7 @@ function LandProtectionQuoteContent() {
       const order = await paymentsApi.createOrder(
         plan.offer,
         `Land Protection - ${plan.name}`,
+        requestId ?? sessionStorage.getItem(PENDING_KEY) ?? undefined,
       );
       const cashfree = await load({ mode: "sandbox" });
       await cashfree.checkout({
@@ -515,6 +564,24 @@ function LandProtectionQuoteContent() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* The customer's own documents. These reach admin on submit, which
+              is why the request is created before payment rather than after:
+              a File cannot survive the Cashfree redirect. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FileField
+              id="landLayout"
+              label="Land layout photo"
+              file={landLayoutFile}
+              onSelect={setLandLayoutFile}
+            />
+            <FileField
+              id="landDimension"
+              label="Dimension page"
+              file={landDimensionFile}
+              onSelect={setLandDimensionFile}
+            />
           </div>
         </div>
 

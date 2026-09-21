@@ -91,8 +91,15 @@ export const paymentsApi = {
   createOrder: async (
     amount: number,
     note?: string,
+    /** The land protection request this order settles, so verification can
+     *  mark it paid server side rather than trusting the browser. */
+    landProtectionId?: string,
   ): Promise<CreatePaymentOrderResponse> => {
-    const response = await api.post("/payments/order", { amount, note });
+    const response = await api.post("/payments/order", {
+      amount,
+      note,
+      landProtectionId,
+    });
     return response.data;
   },
 
@@ -606,6 +613,9 @@ export interface LandProtectionRequestData {
   isOutOfRange?: boolean;
   planTitle?: string;
   planAmount?: number;
+  /** The customer's own layout photo and dimension page, if supplied. */
+  landLayout?: File | null;
+  landDimension?: File | null;
 }
 
 export interface LandProtectionRequest {
@@ -690,7 +700,27 @@ export const landProtectionApi = {
   requestQuote: async (
     data: LandProtectionRequestData,
   ): Promise<LandProtectionRequest> => {
-    const response = await api.post("/land-protection/request-quote", data);
+    // Always multipart: the backend reads landLayout and landDimension as
+    // file fields, and a JSON body silently drops them, which is why the
+    // customer's documents never reached admin.
+    const formData = new FormData();
+    const { landLayout, landDimension, surveyNumbers, ...rest } = data;
+
+    Object.entries(rest).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+    // Repeated field name, which is how the backend's array validation reads it.
+    surveyNumbers?.forEach((n) => formData.append("surveyNumbers", n));
+    if (landLayout) formData.append("landLayout", landLayout);
+    if (landDimension) formData.append("landDimension", landDimension);
+
+    const response = await api.post(
+      "/land-protection/request-quote",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
     return response.data;
   },
 
