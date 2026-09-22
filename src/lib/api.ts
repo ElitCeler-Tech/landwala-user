@@ -380,6 +380,10 @@ export const authApi = {
   signup: async (credentials: {
     email: string;
     password: string;
+    /** Supplying this sends the verification OTP by SMS as well as email,
+     *  and keeps the number on the account. */
+    phoneNumber?: string;
+    countryCode?: string;
   }): Promise<{ message: string }> => {
     const response = await api.post("/auth/signup", credentials);
     return response.data;

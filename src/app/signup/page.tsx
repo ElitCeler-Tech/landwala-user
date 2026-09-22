@@ -136,11 +136,20 @@ function SignUpForm() {
       setError("Please enter email and password");
       return;
     }
+    if (formData.phoneNumber.length !== 10) {
+      setError("Enter a valid 10-digit mobile number");
+      return;
+    }
 
     try {
       setLoading(true);
       setError("");
-      await authApi.signup({ email, password });
+      await authApi.signup({
+        email,
+        password,
+        phoneNumber: formData.phoneNumber,
+        countryCode: "+91",
+      });
       setStep(2); // Move to OTP step
       setError(""); // Clear any previous errors
       startResendCooldown();
@@ -348,6 +357,32 @@ function SignUpForm() {
                     className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-[#2D336B] transition-colors text-gray-700 placeholder:text-gray-400 bg-white"
                   />
                 </div>
+                {/* Collected here rather than at the profile step, so the
+                    verification OTP can go by SMS as well as email. */}
+                <div className="mb-6">
+                  <label className="block text-gray-500 text-sm mb-2 font-medium">
+                    Mobile Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-4 rounded-l-lg border border-r-0 border-gray-200 bg-gray-50 text-gray-500">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      required
+                      inputMode="numeric"
+                      maxLength={10}
+                      placeholder="10 digit mobile number"
+                      value={formData.phoneNumber}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                        setFormData((prev) => ({ ...prev, phoneNumber: digits }));
+                      }}
+                      className="w-full border border-gray-200 rounded-r-lg px-4 py-3 outline-none focus:border-[#2D336B] transition-colors text-gray-700 placeholder:text-gray-400 bg-white"
+                    />
+                  </div>
+                </div>
+
                 <div className="mb-8">
                   <label className="block text-gray-500 text-sm mb-2 font-medium">
                     Password <span className="text-red-500">*</span>
