@@ -370,9 +370,14 @@ function LandProtectionQuoteContent() {
           <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
           <p className="text-gray-300 text-sm mb-6">{plan.range}</p>
           <div className="mb-8">
-            <span className="text-gray-400 line-through text-lg mr-2">
-              ₹{plan.mrp.toLocaleString()}
-            </span>
+            {/* Only strike a price through when there is a real discount.
+                An undiscounted plan has mrp equal to offer, and showing the
+                same number twice reads as a broken offer. */}
+            {plan.mrp > plan.offer && (
+              <span className="text-gray-400 line-through text-lg mr-2">
+                ₹{plan.mrp.toLocaleString()}
+              </span>
+            )}
             <span className="text-3xl font-bold">
               ₹{plan.offer.toLocaleString()}
             </span>

@@ -30,7 +30,10 @@ export interface SubscriptionPlan {
   title: string;
   /** Feature bullets; the backend stores them as a string array. */
   description: string[];
+  /** What the customer pays. */
   price: number;
+  /** Pre-discount figure, or null when the plan is not discounted. */
+  originalPrice: number | null;
   durationMonths: number;
   isActive: boolean;
   minSqYards: number | null;
@@ -236,7 +239,10 @@ export async function resolvePlanForSqYards(
       return {
         name: match.title,
         range: describeRange(match),
-        mrp: match.price,
+        // mrp is the struck-through figure and offer is what is charged.
+        // Without a configured original price the two are equal, and the
+        // quote screen renders a single price rather than a fake discount.
+        mrp: match.originalPrice ?? match.price,
         offer: match.price,
         features: Array.isArray(match.description) ? match.description : [],
       };
