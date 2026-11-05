@@ -11,6 +11,16 @@ const api = axios.create({
   },
 });
 
+// Reads give up after 20s so a slow or unreachable API ends in an empty or
+// error state instead of a spinner that never stops. Uploads and other
+// writes keep no limit, since large documents can take longer on mobile data.
+api.interceptors.request.use((config) => {
+  if ((config.method ?? "get").toLowerCase() === "get" && !config.timeout) {
+    config.timeout = 20000;
+  }
+  return config;
+});
+
 export interface SubscriptionOrderResponse {
   payment_session_id?: string;
   paymentSessionId?: string;

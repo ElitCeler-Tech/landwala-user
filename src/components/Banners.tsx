@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { bannersApi, Banner } from "@/lib/api";
 
 export default function Banners() {
@@ -91,13 +91,9 @@ export default function Banners() {
     return null;
   };
 
-  if (loading) {
-    return (
-      <div className="w-full h-[300px] md:h-[400px] flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1d2567]" />
-      </div>
-    );
-  }
+  // Take no space until there is something to show. A spinner block here
+  // pushed the hero down and sat empty whenever the API was slow or down.
+  if (loading) return null;
 
   if (banners.length === 0) return null;
 
