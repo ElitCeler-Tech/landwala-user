@@ -150,7 +150,7 @@ export default function SettingsPage() {
                 }`}
               >
                 <span
-                  className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-transform ${
+                  className={`absolute left-0 top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
                     prefs[toggle.key] ? "translate-x-6" : "translate-x-1"
                   }`}
                 />

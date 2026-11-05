@@ -13,7 +13,11 @@ export const useSubscriptionPayment = () => {
 
       if (order && order.paymentSessionId) {
         const cashfree = await load({
-          mode: "sandbox", // Use "production" for live
+          // Must match the backend's CASHFREE_ENV. Defaults to sandbox.
+          mode:
+            process.env.NEXT_PUBLIC_CASHFREE_MODE === "production"
+              ? "production"
+              : "sandbox",
         });
 
         await cashfree.checkout({

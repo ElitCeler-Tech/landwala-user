@@ -18,23 +18,24 @@ export default function LayoutsLandingPage() {
         <main className="min-h-screen bg-white font-sans text-gray-900">
             <Header />
 
-            <div className="max-w-2xl mx-auto px-6 py-8 pb-32">
-                <div className="flex items-center gap-4 mb-12">
+            <div className="max-w-2xl mx-auto px-4 md:px-6 pt-22 md:pt-8 pb-12 md:pb-32">
+                <div className="flex items-center gap-2 md:gap-4 mb-6 md:mb-12">
                     <Link
                         href="/"
                         className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
                     >
-                        <ArrowLeft className="w-8 h-8 text-black" />
+                        <ArrowLeft className="w-7 h-7 md:w-8 md:h-8 text-black" />
                     </Link>
-                    <h1 className="text-3xl font-medium text-black">Layouts</h1>
+                    <h1 className="text-2xl md:text-3xl font-medium text-black">Layouts</h1>
                 </div>
 
                 <div className="flex flex-col items-center text-center">
                     {/* Main Icon */}
-                    <div className="w-24 h-24 bg-[#0a1045] rounded-full flex items-center justify-center mb-6 shadow-lg relative">
+                    <div className="w-16 h-16 md:w-24 md:h-24 bg-[#0a1045] rounded-full flex items-center justify-center mb-4 md:mb-6 shadow-lg relative">
                         <svg
                             width="60"
                             height="60"
+                            className="w-10 h-10 md:w-[60px] md:h-[60px]"
                             viewBox="0 0 68 68"
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg"
@@ -55,34 +56,34 @@ export default function LayoutsLandingPage() {
                         </svg>
                     </div>
 
-                    <h2 className="text-3xl font-medium text-black mb-4">Layouts</h2>
-                    <p className="text-lg text-black font-medium leading-relaxed mb-10">
+                    <h2 className="text-2xl md:text-3xl font-medium text-black mb-2 md:mb-4">Layouts</h2>
+                    <p className="text-base md:text-lg text-black font-medium leading-relaxed mb-6 md:mb-10">
                         Find RERA-Approved & <br /> Builder-Verified Layouts
                     </p>
 
-                    <div className="bg-[#E9EBEF] rounded-2xl p-8 mb-6 w-full shadow-sm text-center">
-                        <p className="text-black text-lg leading-relaxed">
+                    <div className="bg-[#E9EBEF] rounded-2xl p-5 md:p-8 mb-4 md:mb-6 w-full shadow-sm text-center">
+                        <p className="text-black text-[15px] md:text-lg leading-relaxed">
                             Browse curated layouts with clear boundaries, verified approvals,
                             and accurate mapping — so you invest with confidence.
                         </p>
                     </div>
 
-                    <div className="bg-[#E9EBEF] rounded-2xl p-8 w-full text-left shadow-sm mb-12">
-                        <h3 className="text-[#1d2567] text-xl font-bold mb-8">
+                    <div className="bg-[#E9EBEF] rounded-2xl p-5 md:p-8 w-full text-left shadow-sm mb-8 md:mb-12">
+                        <h3 className="text-[#1d2567] text-lg md:text-xl font-bold mb-5 md:mb-8">
                             What You Get
                         </h3>
 
-                        <div className="flex flex-col gap-8">
+                        <div className="flex flex-col gap-5 md:gap-8">
                             {/* Item 1 */}
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                                    <Map className="text-white w-6 h-6" />
+                            <div className="flex items-start gap-3 md:gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                                    <Map className="text-white w-5 h-5 md:w-6 md:h-6" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-black text-lg mb-1">
+                                    <h4 className="font-bold text-black text-base md:text-lg mb-1">
                                         1. Verified Maps
                                     </h4>
-                                    <ul className="text-black text-lg list-disc pl-5 space-y-1 marker:text-black">
+                                    <ul className="text-black text-[15px] md:text-lg list-disc pl-5 space-y-1 marker:text-black">
                                         <li>Accurate plot boundaries</li>
                                         <li>Latest masterplan alignment</li>
                                     </ul>
@@ -90,15 +91,15 @@ export default function LayoutsLandingPage() {
                             </div>
 
                             {/* Item 2 */}
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                                    <ShieldCheck className="text-white w-6 h-6" />
+                            <div className="flex items-start gap-3 md:gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                                    <ShieldCheck className="text-white w-5 h-5 md:w-6 md:h-6" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-black text-lg mb-1">
+                                    <h4 className="font-bold text-black text-base md:text-lg mb-1">
                                         2. Approvals Check
                                     </h4>
-                                    <ul className="text-black text-lg list-disc pl-5 space-y-1 marker:text-black">
+                                    <ul className="text-black text-[15px] md:text-lg list-disc pl-5 space-y-1 marker:text-black">
                                         <li>RERA / DTCP / HMDA approvals</li>
                                         <li>Builder verification status</li>
                                     </ul>
@@ -106,15 +107,15 @@ export default function LayoutsLandingPage() {
                             </div>
 
                             {/* Item 3 */}
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                                    <LayoutTemplate className="text-white w-6 h-6" />
+                            <div className="flex items-start gap-3 md:gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                                    <LayoutTemplate className="text-white w-5 h-5 md:w-6 md:h-6" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-black text-lg mb-1">
+                                    <h4 className="font-bold text-black text-base md:text-lg mb-1">
                                         3. Amenities Overview
                                     </h4>
-                                    <ul className="text-black text-lg list-disc pl-5 space-y-1 marker:text-black">
+                                    <ul className="text-black text-[15px] md:text-lg list-disc pl-5 space-y-1 marker:text-black">
                                         <li>Road widths, parks, facilities</li>
                                         <li>Nearby infrastructure map</li>
                                     </ul>
@@ -124,7 +125,7 @@ export default function LayoutsLandingPage() {
                     </div>
 
                     <Link href="/layouts/explore" className="w-full">
-                        <button className="w-full bg-[#1d2567] hover:bg-[#151b4d] text-white font-semibold text-lg py-4 rounded-xl shadow-lg transition-colors cursor-pointer">
+                        <button className="w-full bg-[#1d2567] hover:bg-[#151b4d] text-white font-semibold text-base md:text-lg py-3.5 md:py-4 rounded-xl shadow-lg transition-colors cursor-pointer">
                             Explore Layouts
                         </button>
                     </Link>

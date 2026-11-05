@@ -39,6 +39,7 @@ import {
   WishlistItem,
   Layout,
   Property,
+  authApi,
 } from "@/lib/api";
 
 const WishlistCard = ({ item }: { item: WishlistItem }) => {
@@ -111,7 +112,7 @@ const WishlistCard = ({ item }: { item: WishlistItem }) => {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, setUser } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState("My Requests");
   const [subTab, setSubTab] = useState("Land protection");
@@ -149,6 +150,40 @@ export default function ProfilePage() {
     }
   }, [mounted, isAuthenticated, router]);
 
+  // Login responses carry only id, email, name and picture, so load the full
+  // profile (phone, location, gender...) from GET /auth/me, as the app does.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const me = await authApi.getProfile();
+        if (cancelled || !me) return;
+        const current = useAuthStore.getState().user;
+        if (!current) return;
+        setUser({
+          ...current,
+          email: me.email ?? current.email,
+          name: me.name ?? current.name,
+          fullName: me.name ?? current.fullName,
+          phoneNumber: me.phone ?? current.phoneNumber,
+          countryCode: me.countryCode ?? current.countryCode,
+          location: me.location ?? current.location,
+          employment: me.employment ?? current.employment,
+          gender: me.gender ?? current.gender,
+          dateOfBirth: me.dateOfBirth ?? current.dateOfBirth,
+          profilePicture: me.profilePicture ?? current.profilePicture,
+          isNewUser: me.isProfileComplete === false,
+        });
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, setUser]);
+
   useEffect(() => {
     const fetchData = async () => {
       if (activeTab === "My Requests" && isAuthenticated) {
@@ -160,13 +195,13 @@ export default function ProfilePage() {
             setProtectionRequests(data.requests || []);
           } else if (subTab === "Land Registration") {
             const data = await landRegistrationApi.getEnquiries();
-            setEnquiries(data.enquiries || []);
+            setEnquiries(data.registrations || []);
           } else if (subTab === "Loan Eligibility") {
             const data = await loanApi.getApplications();
             setLoanApplications(data.applications || []);
           } else if (subTab === "Legal Verification") {
             const data = await legalVerificationApi.getApplications();
-            setLegalVerifications(data.applications || []);
+            setLegalVerifications(data.verifications || []);
           } else if (subTab === "Plot Enquiry" || subTab === "Layouts") {
             // One /enquiries list serves both tabs, split by type as in the app.
             const items = await enquiriesApi.list({ page: 1, limit: 100 });
@@ -334,8 +369,12 @@ export default function ProfilePage() {
         return enquiries.length > 0 ? (
           enquiries.map((enq) =>
             renderRequestCard(
-              enq.propertyTitle || "Land Registration Enquiry",
-              `Ref: ${enq.id.substring(0, 8)}`,
+              enq.location
+                ? `Land Registration, ${enq.location}`
+                : "Land Registration Enquiry",
+              [enq.plotType, `Ref: ${enq.id.substring(0, 8)}`]
+                .filter(Boolean)
+                .join(" . "),
               `Submitted On ${new Date(enq.createdAt).toLocaleDateString()}`,
               enq.id,
             ),

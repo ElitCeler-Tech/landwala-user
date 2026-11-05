@@ -42,19 +42,19 @@ const categories = [
 
 export default function Categories({ id }: { id?: string }) {
   return (
-    <section id={id} className="py-16 max-w-7xl mx-auto bg-white">
+    <section id={id} className="py-10 md:py-16 max-w-7xl mx-auto bg-white">
       <div className="container mx-auto px-4 md:px-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-5 md:mb-8">
           Explore our Categories
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-3 md:gap-6">
           {categories.map((cat, index) => (
             <Link href={cat.link} key={index} className="block h-full">
-              <div className="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full w-full">
-                <div className="w-16 h-16 rounded-full bg-[#1d2567] flex items-center justify-center mb-4 text-white">
+              <div className="flex flex-col items-center justify-center px-2 py-4 md:p-8 bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full w-full">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[#1d2567] flex items-center justify-center mb-2 md:mb-4 max-md:[&>svg]:w-6 max-md:[&>svg]:h-6 text-white">
                   {cat.icon}
                 </div>
-                <span className="text-[#1d2567] font-medium text-lg">
+                <span className="text-[#1d2567] font-medium text-xs md:text-lg text-center leading-tight">
                   {cat.label}
                 </span>
               </div>

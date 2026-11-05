@@ -21,6 +21,12 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const PENDING_KEY = "landProtectionPendingRequest";
 
+// Must match the backend's CASHFREE_ENV. Defaults to sandbox, as before.
+const CASHFREE_MODE: "sandbox" | "production" =
+  process.env.NEXT_PUBLIC_CASHFREE_MODE === "production"
+    ? "production"
+    : "sandbox";
+
 interface PendingRequest {
   fullName: string;
   phone: string;
@@ -162,6 +168,9 @@ function LandProtectionQuoteContent() {
         surveyNumbers:
           pending.surveyNumbers.length > 0 ? pending.surveyNumbers : undefined,
         isOutOfRange: isOutOfRange || undefined,
+        // Recorded up front so the backend can fall back to it on payment.
+        planTitle: pending.planName || undefined,
+        planAmount: pending.planAmount || undefined,
         landLayout: landLayoutFile,
         landDimension: landDimensionFile,
       });
@@ -177,14 +186,20 @@ function LandProtectionQuoteContent() {
     const verify = async () => {
       setStep("verifying");
       try {
-        // The request already exists and the order carries its id, so
-        // verification is all that is needed. The backend marks the request
-        // paid from what Cashfree reports, not from anything sent here.
-        const result = await paymentsApi.verifyPayment(orderId);
-        if (result.orderStatus !== "PAID") {
-          setError(`Payment not confirmed. Status: ${result.orderStatus}`);
-          setStep("details");
-          return;
+        // The request was created before checkout and its id kept in
+        // sessionStorage across the Cashfree redirect. confirm-payment checks
+        // the order with Cashfree server side and settles the request (paid,
+        // accepted, plan recorded, customer notified), as the app does.
+        const pendingId = sessionStorage.getItem(PENDING_KEY);
+        if (pendingId) {
+          await landProtectionApi.confirmPayment(pendingId, { orderId });
+        } else {
+          const result = await paymentsApi.verifyPayment(orderId);
+          if (result.orderStatus !== "PAID") {
+            setError(`Payment not confirmed. Status: ${result.orderStatus}`);
+            setStep("details");
+            return;
+          }
         }
 
         sessionStorage.removeItem(PENDING_KEY);
@@ -300,12 +315,16 @@ function LandProtectionQuoteContent() {
     setPaying(true);
     setError("");
     try {
+      const payingFor =
+        requestId ?? sessionStorage.getItem(PENDING_KEY) ?? undefined;
       const order = await paymentsApi.createOrder(
         plan.offer,
         `Land Protection - ${plan.name}`,
-        requestId ?? sessionStorage.getItem(PENDING_KEY) ?? undefined,
+        payingFor,
       );
-      const cashfree = await load({ mode: "sandbox" });
+      // Keep the request id across the redirect so the return can settle it.
+      if (payingFor) sessionStorage.setItem(PENDING_KEY, payingFor);
+      const cashfree = await load({ mode: CASHFREE_MODE });
       await cashfree.checkout({
         paymentSessionId: order.paymentSessionId,
         redirectTarget: "_self",

@@ -53,10 +53,10 @@ function Contact({ id }: { id?: string }) {
   };
 
   return (
-    <section id={id} className="py-24 px-6 sm:px-8 bg-white">
+    <section id={id} className="py-12 md:py-24 px-4 sm:px-8 bg-white">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
         <div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-black mb-8">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-6 md:mb-8">
             <span className="relative inline-block align-baseline">
               <span className="relative z-10">Connect</span>
               <Image
@@ -65,12 +65,12 @@ function Contact({ id }: { id?: string }) {
                 width={208}
                 height={20}
                 aria-hidden="true"
-                className="absolute -bottom-3 md:-bottom-6 left-0 w-40 md:w-52 z-0"
+                className="absolute -bottom-2 md:-bottom-6 left-0 w-32 md:w-52 z-0"
               />
             </span>{" "}
             With <span className="text-black">Us</span>
           </h2>
-          <p className="text-gray-500 mb-8 leading-relaxed">
+          <p className="text-gray-500 text-sm md:text-base mb-6 md:mb-8 leading-relaxed">
             Stay updated with the latest verified land listings, investment
             opportunities, and expert insights from LandWalaa.
           </p>
@@ -94,7 +94,7 @@ function Contact({ id }: { id?: string }) {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
+              className="w-full px-4 md:px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
             />
 
             <input
@@ -104,10 +104,10 @@ function Contact({ id }: { id?: string }) {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
+              className="w-full px-4 md:px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <input
                 type="tel"
                 name="phone"
@@ -115,7 +115,7 @@ function Contact({ id }: { id?: string }) {
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                className="w-full px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
+                className="w-full px-4 md:px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
               />
               <input
                 type="text"
@@ -124,7 +124,7 @@ function Contact({ id }: { id?: string }) {
                 value={formData.location}
                 onChange={handleChange}
                 required
-                className="w-full px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
+                className="w-full px-4 md:px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors"
               />
             </div>
 
@@ -135,7 +135,7 @@ function Contact({ id }: { id?: string }) {
               onChange={handleChange}
               required
               rows={4}
-              className="w-full px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors resize-none"
+              className="w-full px-4 md:px-5 py-3 rounded-lg border border-gray-200 focus:border-[#EF9E41] outline-none transition-colors resize-none"
             />
 
             <button

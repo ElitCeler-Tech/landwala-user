@@ -71,10 +71,10 @@ export default function FaqsPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
 
-      <div className="bg-gray-50 pt-32 pb-20 px-6 lg:px-8">
+      <div className="bg-gray-50 pt-28 pb-12 md:pt-32 md:pb-20 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
               Frequently Asked Questions
             </h1>
             <p className="text-gray-500 md:text-lg">

@@ -11,12 +11,12 @@ export default function LandRegistrationPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 pt-24 pb-8 md:py-8">
         {/* Navigation */}
-        <div className="flex items-center mb-8">
+        <div className="flex items-center mb-6 md:mb-8">
           <Link
             href="/"
-            className="flex items-center text-black font-semibold text-lg hover:text-gray-700 transition-colors"
+            className="flex items-center text-black font-semibold text-base md:text-lg hover:text-gray-700 transition-colors"
           >
             <ArrowLeft className="w-6 h-6 mr-2" />
             Layouts
@@ -25,10 +25,11 @@ export default function LandRegistrationPage() {
 
         <div className="flex flex-col items-center text-center">
           {/* Top Icon Circle */}
-          <div className="w-24 h-24 bg-[#1d2567] rounded-full flex items-center justify-center mb-6 shadow-lg">
+          <div className="w-16 h-16 md:w-24 md:h-24 bg-[#1d2567] rounded-full flex items-center justify-center mb-4 md:mb-6 shadow-lg">
             <svg
               width="45"
               height="45"
+              className="w-8 h-8 md:w-[45px] md:h-[45px]"
               viewBox="0 0 43 43"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -76,67 +77,67 @@ export default function LandRegistrationPage() {
             </svg>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
             Land Registration
           </h1>
-          <p className="text-gray-600 mb-8 font-medium">
+          <p className="text-sm md:text-base text-gray-600 mb-6 md:mb-8 font-medium">
             Fast • Hassle Free • Transparent
           </p>
 
-          <div className="bg-gray-100 rounded-2xl p-6 mb-12 max-w-2xl w-full">
-            <p className="text-gray-700 text-center leading-relaxed">
+          <div className="bg-gray-100 rounded-2xl p-5 md:p-6 mb-4 md:mb-12 max-w-2xl w-full">
+            <p className="text-gray-700 text-[15px] md:text-base text-center leading-relaxed">
               Land registration is essential to protect your ownership, avoid
               disputes, and maintain verified government records for your
               property.
             </p>
           </div>
 
-          <div className="bg-gray-100 rounded-3xl p-8 mb-12 max-w-2xl w-full">
-            <h2 className="text-[#1d2567] font-bold text-xl mb-8 text-left">
+          <div className="bg-gray-100 rounded-2xl md:rounded-3xl p-5 md:p-8 mb-8 md:mb-12 max-w-2xl w-full">
+            <h2 className="text-[#1d2567] font-bold text-lg md:text-xl mb-5 md:mb-8 text-left">
               How It Works
             </h2>
 
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-5 md:gap-8">
               {/* Step 1 */}
-              <div className="flex items-start text-left gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                  <FileCheck className="text-white w-6 h-6" />
+              <div className="flex items-start text-left gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                  <FileCheck className="text-white w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-lg mb-1">
+                  <h3 className="font-bold text-gray-900 text-base md:text-lg mb-1">
                     1. Document Check
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-[15px] md:text-base">
                     We review and validate all required ownership documents.
                   </p>
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="flex items-start text-left gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                  <Building2 className="text-white w-6 h-6" />
+              <div className="flex items-start text-left gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                  <Building2 className="text-white w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-lg mb-1">
+                  <h3 className="font-bold text-gray-900 text-base md:text-lg mb-1">
                     2. Government Filing
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-[15px] md:text-base">
                     Your registration request is securely submitted and tracked.
                   </p>
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="flex items-start text-left gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                  <CheckCircle className="text-white w-6 h-6" />
+              <div className="flex items-start text-left gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                  <CheckCircle className="text-white w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-lg mb-1">
+                  <h3 className="font-bold text-gray-900 text-base md:text-lg mb-1">
                     3. Approval & Confirmation
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-[15px] md:text-base">
                     Receive digital proof and status updates until fully
                     approved.
                   </p>
@@ -145,8 +146,8 @@ export default function LandRegistrationPage() {
             </div>
           </div>
 
-          <Link href="/land-registration-form">
-            <button className="bg-[#2e3675] hover:bg-[#232958] text-white font-semibold py-4 px-12 rounded-xl shadow-lg transition-colors text-lg">
+          <Link href="/land-registration-form" className="w-full md:w-auto">
+            <button className="w-full md:w-auto bg-[#2e3675] hover:bg-[#232958] text-white font-semibold py-3.5 md:py-4 px-12 rounded-xl shadow-lg transition-colors text-base md:text-lg">
               Start Registration
             </button>
           </Link>

@@ -3,13 +3,20 @@
 import { AxiosError } from "axios";
 import Header from "@/components/Header";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, Smartphone, Mail } from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+
+type Method = "mobile" | "email";
+
+const RESEND_SECONDS = 30;
+
+const inputClass =
+  "w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-[#2D336B] transition-colors text-gray-700 placeholder:text-gray-400 bg-white";
 
 function LoginForm() {
   const router = useRouter();
@@ -18,9 +25,20 @@ function LoginForm() {
   const { login, isAuthenticated, setLoading, isLoading, user } =
     useAuthStore();
 
+  // Mobile first, as in the app's login screen.
+  const [method, setMethod] = useState<Method>("mobile");
+  const [error, setError] = useState("");
+
+  // Email + password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
+  // Mobile number + OTP
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [noAccount, setNoAccount] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
 
   // Redirect if already authenticated (and user is not new)
   useEffect(() => {
@@ -29,82 +47,138 @@ function LoginForm() {
     }
   }, [isAuthenticated, user, router, redirectPath]);
 
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
+  const switchMethod = (m: Method) => {
+    setMethod(m);
+    setError("");
+    setNoAccount(false);
+  };
+
+  type Session = Awaited<ReturnType<typeof authApi.login>>;
+
+  const finishLogin = (response: Session) => {
+    login(response.user, {
+      accessToken: response.tokens.accessToken,
+      refreshToken: response.tokens.refreshToken,
+      expiresIn: response.tokens.expiresIn,
+    });
+    if (response.user.isNewUser) {
+      router.push(
+        `/signup?complete=true&redirect=${encodeURIComponent(redirectPath)}`,
+      );
+    } else {
+      router.push(redirectPath);
+    }
+  };
+
+  const apiMessage = (err: unknown, fallback: string) =>
+    (err as AxiosError<{ message: string | string[] }>).response?.data
+      ?.message?.toString() || fallback;
+
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
       setError("");
-
-      // Sign in with Google using Firebase
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
-
-      // Send idToken to backend
-      const response = await authApi.googleAuth(idToken);
-
-      // Store user and tokens in Zustand store
-      login(response.user, {
-        accessToken: response.tokens.accessToken,
-        refreshToken: response.tokens.refreshToken,
-        expiresIn: response.tokens.expiresIn,
-      });
-
-      // Check if user needs to complete registration
-      if (response.user.isNewUser) {
-        router.push(
-          `/signup?complete=true&redirect=${encodeURIComponent(redirectPath)}`,
-        );
-      } else {
-        router.push(redirectPath);
-      }
+      finishLogin(await authApi.googleAuth(idToken));
     } catch (err: unknown) {
       console.error("Google login error:", err);
-      const error = err as AxiosError<{ message: string }>;
       setError(
-        error.response?.data?.message ||
-          "Failed to sign in with Google. Please try again.",
+        apiMessage(err, "Failed to sign in with Google. Please try again."),
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email || !password) {
       setError("Please enter both email and password");
       return;
     }
-
     try {
       setLoading(true);
       setError("");
-
-      const response = await authApi.login({ email, password });
-
-      login(response.user, {
-        accessToken: response.tokens.accessToken,
-        refreshToken: response.tokens.refreshToken,
-        expiresIn: response.tokens.expiresIn,
-      });
-
-      if (response.user.isNewUser) {
-        router.push(
-          `/signup?complete=true&redirect=${encodeURIComponent(redirectPath)}`,
-        );
-      } else {
-        router.push(redirectPath);
-      }
+      finishLogin(await authApi.login({ email, password }));
     } catch (err: unknown) {
       console.error("Login error:", err);
-      const error = err as AxiosError<{ message: string }>;
-      setError(
-        error.response?.data?.message || "Failed to login. Please try again.",
-      );
+      setError(apiMessage(err, "Failed to login. Please try again."));
     } finally {
       setLoading(false);
     }
   };
+
+  const sendOtp = async () => {
+    if (phone.length !== 10) {
+      setError("Enter a valid 10 digit mobile number");
+      return;
+    }
+    try {
+      setLoading(true);
+      setError("");
+      setNoAccount(false);
+      const res = await authApi.requestPhoneOtp(phone);
+      if (!res.accountExists) {
+        setNoAccount(true);
+        return;
+      }
+      setOtpSent(true);
+      setOtp("");
+      setResendIn(RESEND_SECONDS);
+    } catch (err: unknown) {
+      setError(apiMessage(err, "Could not send the OTP. Please try again."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpSent) {
+      await sendOtp();
+      return;
+    }
+    if (otp.length !== 4) {
+      setError("Enter the 4 digit OTP");
+      return;
+    }
+    try {
+      setLoading(true);
+      setError("");
+      finishLogin(await authApi.verifyPhoneOtp(phone, otp));
+    } catch (err: unknown) {
+      setError(apiMessage(err, "Invalid or expired OTP"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const tabClass = (m: Method) =>
+    `flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+      method === m
+        ? "bg-white text-[#1d2567] shadow-sm"
+        : "text-gray-500 hover:text-[#1d2567]"
+    }`;
+
+  const submitLabel = (idle: string, busy: string) =>
+    isLoading ? (
+      <>
+        <Loader2 className="w-5 h-5 animate-spin" />
+        {busy}
+      </>
+    ) : (
+      idle
+    );
+
+  const primaryBtn =
+    "w-full bg-[#1d2567] hover:bg-[#151b4d] disabled:bg-gray-400 text-white font-bold py-3 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2";
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 font-sans text-gray-900 flex flex-col relative overflow-hidden">
@@ -116,10 +190,10 @@ function LoginForm() {
 
       <Header />
 
-      <div className="flex-grow flex items-center justify-center p-4 relative z-10 w-full max-w-7xl mx-auto">
+      <div className="flex-grow flex items-start md:items-center justify-center px-4 pt-28 pb-10 md:p-4 relative z-10 w-full max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between w-full gap-12 md:gap-24">
-          {/* Left Side Content */}
-          <div className="w-full md:w-1/2 text-left space-y-2 pl-4 md:pl-12">
+          {/* Left side headline: desktop only, the card carries the title on phones */}
+          <div className="hidden md:block w-full md:w-1/2 text-left space-y-2 pl-4 md:pl-12">
             <h2
               className="text-[#3b5bdb] text-4xl md:text-5xl italic font-normal mb-2"
               style={{ fontFamily: "serif" }}
@@ -131,13 +205,39 @@ function LoginForm() {
             </h1>
           </div>
 
-          {/* Right Side Form Card */}
+          {/* Form card */}
           <div className="w-full md:w-[480px]">
-            <div className="bg-white rounded-[32px] shadow-2xl p-8 md:p-10 border border-white">
+            <div className="bg-white rounded-3xl md:rounded-[32px] shadow-2xl p-6 md:p-10 border border-white">
               <p className="text-gray-400 text-sm mb-1">Welcome back</p>
-              <h2 className="text-[#1d2567] text-2xl font-bold mb-8">
+              <h2 className="text-[#1d2567] text-xl md:text-2xl font-bold mb-6">
                 <span className="text-[#F7AE49]">Sign in</span> to your Account
               </h2>
+
+              <div
+                role="tablist"
+                className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={method === "mobile"}
+                  onClick={() => switchMethod("mobile")}
+                  className={tabClass("mobile")}
+                >
+                  <Smartphone className="w-4 h-4" />
+                  Mobile Number
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={method === "email"}
+                  onClick={() => switchMethod("email")}
+                  className={tabClass("email")}
+                >
+                  <Mail className="w-4 h-4" />
+                  Email
+                </button>
+              </div>
 
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -145,66 +245,183 @@ function LoginForm() {
                 </div>
               )}
 
-              <form onSubmit={handleLogin}>
-                {/* Email Input */}
-                <div className="mb-6">
-                  <label className="block text-gray-500 text-sm mb-2 font-medium">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-[#2D336B] transition-colors text-gray-700 placeholder:text-gray-400 bg-white"
-                  />
-                </div>
-
-                {/* Password Input */}
-                <div className="mb-8">
-                  <label className="block text-gray-500 text-sm mb-2 font-medium">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-4 py-3 outline-none focus:border-[#2D336B] transition-colors text-gray-700 placeholder:text-gray-400 bg-white"
-                  />
-                  <div className="text-right mt-2">
-                    <Link
-                      href={`/forgot-password?redirect=${encodeURIComponent(redirectPath)}`}
-                      className="text-sm text-blue-500 hover:text-blue-700 font-medium"
+              {method === "mobile" ? (
+                <form onSubmit={handlePhoneSubmit} noValidate>
+                  <div className="mb-5">
+                    <label
+                      htmlFor="phone"
+                      className="block text-gray-500 text-sm mb-2 font-medium"
                     >
-                      Forgot Password?
-                    </Link>
+                      Mobile Number
+                    </label>
+                    <div className="flex items-stretch border border-gray-200 rounded-lg bg-white focus-within:border-[#2D336B] transition-colors overflow-hidden">
+                      <span className="flex items-center px-3 text-gray-700 bg-gray-50 border-r border-gray-200 text-sm font-medium">
+                        +91
+                      </span>
+                      <input
+                        id="phone"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        placeholder="10 digit mobile number"
+                        value={phone}
+                        disabled={otpSent}
+                        onChange={(e) => {
+                          setPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+                          setNoAccount(false);
+                        }}
+                        className="flex-1 min-w-0 px-4 py-3 outline-none text-gray-700 placeholder:text-gray-400 bg-white disabled:bg-gray-50"
+                      />
+                    </div>
+                    {otpSent && (
+                      <div className="flex justify-between items-center mt-2 text-sm">
+                        <span className="text-gray-500">
+                          We sent a 4 digit code to +91 {phone}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOtpSent(false);
+                            setOtp("");
+                            setError("");
+                          }}
+                          className="text-blue-500 hover:text-blue-700 font-medium shrink-0 ml-2"
+                        >
+                          Change
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                {/* Login Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-[#1d2567] hover:bg-[#151b4d] disabled:bg-gray-400 text-white font-bold py-3 rounded-lg shadow-sm transition-colors mb-6 flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    "Login"
+                  {noAccount && (
+                    <div className="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                      No account found for this number.{" "}
+                      <Link
+                        href={`/signup?redirect=${encodeURIComponent(redirectPath)}`}
+                        className="font-semibold underline"
+                      >
+                        Create an account
+                      </Link>
+                    </div>
                   )}
-                </button>
-              </form>
 
-              {/* Google Login Only */}
+                  {otpSent && (
+                    <div className="mb-6">
+                      <label
+                        htmlFor="otp"
+                        className="block text-gray-500 text-sm mb-2 font-medium"
+                      >
+                        OTP
+                      </label>
+                      <input
+                        id="otp"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        placeholder="• • • •"
+                        autoFocus
+                        value={otp}
+                        onChange={(e) =>
+                          setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))
+                        }
+                        className={`${inputClass} text-center text-xl tracking-[0.6em] font-semibold`}
+                      />
+                      <div className="text-right mt-2">
+                        {resendIn > 0 ? (
+                          <span className="text-sm text-gray-400">
+                            Resend OTP in {resendIn}s
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={sendOtp}
+                            disabled={isLoading}
+                            className="text-sm text-blue-500 hover:text-blue-700 font-medium"
+                          >
+                            Resend OTP
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className={`${primaryBtn} mb-6`}
+                  >
+                    {otpSent
+                      ? submitLabel("Verify & Login", "Verifying...")
+                      : submitLabel("Send OTP", "Sending...")}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleEmailLogin}>
+                  <div className="mb-5">
+                    <label
+                      htmlFor="email"
+                      className="block text-gray-500 text-sm mb-2 font-medium"
+                    >
+                      Email Address
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="password"
+                      className="block text-gray-500 text-sm mb-2 font-medium"
+                    >
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      type="password"
+                      autoComplete="current-password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className={inputClass}
+                    />
+                    <div className="text-right mt-2">
+                      <Link
+                        href={`/forgot-password?redirect=${encodeURIComponent(redirectPath)}`}
+                        className="text-sm text-blue-500 hover:text-blue-700 font-medium"
+                      >
+                        Forgot Password?
+                      </Link>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className={`${primaryBtn} mb-6`}
+                  >
+                    {submitLabel("Login", "Signing in...")}
+                  </button>
+                </form>
+              )}
+
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs font-medium text-gray-400">OR</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+
               <button
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className="w-full bg-[#dbeafe] hover:bg-blue-100 disabled:bg-gray-100 text-gray-900 font-bold py-3 rounded-lg flex items-center justify-center gap-3 transition-colors mb-8"
+                className="w-full bg-[#dbeafe] hover:bg-blue-100 disabled:bg-gray-100 text-gray-900 font-bold py-3 rounded-lg flex items-center justify-center gap-3 transition-colors mb-6 md:mb-8"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -224,7 +441,7 @@ function LoginForm() {
                     fill="#EA4335"
                   />
                 </svg>
-                Google
+                Continue with Google
               </button>
 
               <div className="text-center">

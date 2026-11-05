@@ -56,13 +56,13 @@ export default function AboutUs() {
     <main className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
 
-      <div className="bg-gray-50 pt-32 pb-20 px-6 lg:px-8">
+      <div className="bg-gray-50 pt-28 pb-12 md:pt-32 md:pb-20 px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Intro card, matches Terms/Privacy page styling */}
-          <div className="bg-white rounded-3xl shadow-xs border border-gray-100 p-8 md:p-14 relative overflow-hidden mb-16">
+          <div className="bg-white rounded-3xl shadow-xs border border-gray-100 p-6 md:p-14 relative overflow-hidden mb-10 md:mb-16">
             <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-[#EF9E41] to-[#111a61]"></div>
 
-            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
               About Us
             </h1>
             <p className="text-gray-700 leading-relaxed md:text-lg max-w-3xl">

@@ -95,9 +95,9 @@ export default function LoanEligibilityForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mb-20">
+    <div className="max-w-xl mx-auto mb-8 md:mb-20">
       {/* Header - Outside the box */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-6 md:mb-10">
         <h1 className="text-xl font-semibold text-gray-900 mb-2">
           Check Loan Eligibility
         </h1>
@@ -107,7 +107,7 @@ export default function LoanEligibilityForm() {
       </div>
 
       {/* Box Form */}
-      <section className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
+      <section className="bg-white rounded-3xl shadow-2xl p-5 md:p-12 border border-gray-100">
         {/* Form Content */}
         <div className="w-full">
           <div className="mb-8">
@@ -173,9 +173,12 @@ export default function LoanEligibilityForm() {
                   <option value="" disabled>
                     Loan Purpose
                   </option>
+                  {/* Values must match the backend LoanPurpose enum:
+                      HOME, PERSONAL, BUSINESS, EDUCATION, VEHICLE, OTHER. */}
                   <option value="HOME">Home Loan</option>
-                  <option value="LAND">Land Loan</option>
-                  <option value="COMMERCIAL">Commercial Loan</option>
+                  <option value="BUSINESS">Business / Commercial Loan</option>
+                  <option value="PERSONAL">Personal Loan</option>
+                  <option value="OTHER">Other (incl. Land Loan)</option>
                 </select>
                 <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
               </div>

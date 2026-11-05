@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
+import { useAuthStore } from "@/store/authStore";
 import Footer from "@/components/Footer";
 import {
   contentApi,
@@ -26,8 +27,22 @@ export default function LandProtectionVideosPage() {
   const [loading, setLoading] = useState(true);
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const { isAuthenticated } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // GET /land-protection/videos needs a signed-in user, as in the app.
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      router.push("/login?redirect=%2Fland-protection%2Fvideos");
+    }
+  }, [mounted, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
     const load = async () => {
       try {
         const items = await landProtectionApi.getVideos();
@@ -40,7 +55,7 @@ export default function LandProtectionVideosPage() {
       }
     };
     load();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const load = async () => {

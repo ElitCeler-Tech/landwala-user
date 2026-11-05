@@ -155,7 +155,7 @@ export default function ListPropertyForm() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mb-20">
+    <div className="max-w-2xl mx-auto mb-8 md:mb-20">
       <SuccessModal
         isOpen={showSuccess}
         onClose={() => setShowSuccess(false)}
@@ -163,14 +163,14 @@ export default function ListPropertyForm() {
         message="Your property details have been submitted for review."
       />
 
-      <div className="text-center mb-10">
+      <div className="text-center mb-6 md:mb-10">
         <h1 className="text-xl font-semibold text-gray-900 mb-2">
           List Your Property
         </h1>
         <p className="text-gray-500">Add details here to list your property</p>
       </div>
 
-      <section className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
+      <section className="bg-white rounded-3xl shadow-2xl p-5 md:p-12 border border-gray-100">
         <form onSubmit={handleSubmit} className="w-full">
           <div className="mb-8">
             <h2 className="text-lg text-center font-semibold text-gray-800 mb-1">
@@ -279,15 +279,15 @@ export default function ListPropertyForm() {
                   value={formData.size}
                   onChange={handleInputChange}
                   placeholder="Plot Size"
-                  className="flex-[3] border border-gray-200 rounded-xl px-5 py-4 text-gray-700 outline-none focus:border-[#2D336B] transition-colors bg-white font-normal"
+                  className="flex-1 min-w-0 md:min-w-auto md:flex-[3] border border-gray-200 rounded-xl px-5 py-4 text-gray-700 outline-none focus:border-[#2D336B] transition-colors bg-white font-normal"
                   required
                 />
-                <div className="relative flex-[2]">
+                <div className="relative w-[120px] flex-none md:w-auto md:flex-[2]">
                   <select
                     name="unit"
                     value={formData.unit}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-200 rounded-xl px-5 py-4 text-gray-700 outline-none focus:border-[#2D336B] transition-colors bg-white appearance-none cursor-pointer"
+                    className="w-full border border-gray-200 rounded-xl pl-4 pr-9 md:px-5 py-4 text-gray-700 outline-none focus:border-[#2D336B] transition-colors bg-white appearance-none cursor-pointer"
                     required
                     disabled={!formData.category}
                   >
@@ -300,7 +300,7 @@ export default function ListPropertyForm() {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
                 </div>
               </div>
 

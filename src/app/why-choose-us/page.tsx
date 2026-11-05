@@ -103,10 +103,10 @@ export default function WhyChooseUsPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
 
-      <div className="bg-gray-50 pt-32 pb-20 px-6 lg:px-8">
+      <div className="bg-gray-50 pt-28 pb-12 md:pt-32 md:pb-20 px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+          <div className="text-center mb-8 md:mb-14">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
               Why Choose Us
             </h1>
             <p className="text-gray-500 md:text-lg max-w-2xl mx-auto">
@@ -140,7 +140,7 @@ export default function WhyChooseUsPage() {
                       return (
                         <div
                           key={item.id}
-                          className="bg-white rounded-3xl shadow-xs border border-gray-100 p-8 hover:shadow-lg transition-shadow"
+                          className="bg-white rounded-3xl shadow-xs border border-gray-100 p-6 md:p-8 hover:shadow-lg transition-shadow"
                         >
                           <div className="w-14 h-14 rounded-2xl bg-[#111a61]/5 flex items-center justify-center mb-5">
                             <Icon className="w-7 h-7 text-[#EF9E41]" />

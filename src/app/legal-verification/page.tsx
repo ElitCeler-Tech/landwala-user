@@ -10,7 +10,7 @@ export default function LegalVerificationPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
 
-      <div className="py-12 px-4">
+      <div className="pt-24 pb-12 md:py-12 px-4">
         <LegalVerificationForm />
       </div>
 

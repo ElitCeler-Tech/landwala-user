@@ -47,8 +47,8 @@ export default function LoanEligibilityPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900 flex flex-col">
       <Header />
 
-      <div className="flex-grow flex flex-col items-center py-10 md:py-20 px-4">
-        <h1 className="text-2xl font-semibold text-black mb-12 text-center">
+      <div className="flex-grow flex flex-col items-center pt-24 pb-10 md:py-20 px-4">
+        <h1 className="text-2xl font-semibold text-black mb-8 md:mb-12 text-center">
           Loan Eligibility
         </h1>
 
@@ -142,7 +142,7 @@ export default function LoanEligibilityPage() {
             <h2 className="text-2xl font-semibold text-black mb-3">
               No Loan Applications Yet
             </h2>
-            <p className="text-gray-500 text-lg mb-8 max-w-md">
+            <p className="text-gray-500 text-base md:text-lg mb-8 max-w-md">
               Check your eligibility and apply for property loans with trusted
               LandWalaa partners.
             </p>

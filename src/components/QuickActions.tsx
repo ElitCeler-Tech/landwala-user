@@ -176,21 +176,21 @@ const actions = [
 
 export default function QuickActions({ id }: { id?: string }) {
   return (
-    <section id={id} className="py-16 bg-white">
+    <section id={id} className="py-10 md:py-16 bg-white">
       <div className="container mx-auto px-4 md:px-6 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-12">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-12">
           Quick Actions
         </h2>
-        <div className="flex flex-wrap justify-center gap-12 sm:gap-24">
+        <div className="flex flex-wrap justify-center gap-y-6 sm:gap-12 md:gap-24">
           {actions.map((action, index) => {
             const Content = (
-              <div className="flex flex-col items-center gap-4 group cursor-pointer h-full">
+              <div className="flex flex-col items-center gap-2 md:gap-4 group cursor-pointer h-full">
                 <div
-                  className={`w-20 h-20 rounded-full ${action.bg} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}
+                  className={`w-16 h-16 md:w-20 md:h-20 rounded-full ${action.bg} max-md:[&>svg]:w-8 max-md:[&>svg]:h-8 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}
                 >
                   {action.icon}
                 </div>
-                <span className="text-gray-600 font-medium text-sm md:text-base">
+                <span className="text-gray-600 font-medium text-xs md:text-base text-center leading-tight">
                   {action.label}
                 </span>
               </div>
@@ -198,7 +198,7 @@ export default function QuickActions({ id }: { id?: string }) {
 
             if (action.label === "Loan Eligibility") {
               return (
-                <Link href="/loan-eligibility" key={index}>
+                <Link href="/loan-eligibility" key={index} className="w-1/3 sm:w-auto">
                   {Content}
                 </Link>
               );
@@ -206,7 +206,7 @@ export default function QuickActions({ id }: { id?: string }) {
 
             if (action.label === "Latest Listings") {
               return (
-                <Link href="/latest-listings" key={index}>
+                <Link href="/latest-listings" key={index} className="w-1/3 sm:w-auto">
                   {Content}
                 </Link>
               );
@@ -214,7 +214,7 @@ export default function QuickActions({ id }: { id?: string }) {
 
             if (action.label === "Legal Verification") {
               return (
-                <Link href="/legal-verification" key={index}>
+                <Link href="/legal-verification" key={index} className="w-1/3 sm:w-auto">
                   {Content}
                 </Link>
               );
@@ -222,7 +222,7 @@ export default function QuickActions({ id }: { id?: string }) {
 
             if (action.label === "Layouts") {
               return (
-                <Link href="/layouts" key={index}>
+                <Link href="/layouts" key={index} className="w-1/3 sm:w-auto">
                   {Content}
                 </Link>
               );
@@ -230,13 +230,13 @@ export default function QuickActions({ id }: { id?: string }) {
 
             if (action.label === "Land Registration") {
               return (
-                <Link href="/land-registration" key={index}>
+                <Link href="/land-registration" key={index} className="w-1/3 sm:w-auto">
                   {Content}
                 </Link>
               );
             }
 
-            return <div key={index}>{Content}</div>;
+            return <div key={index} className="w-1/3 sm:w-auto">{Content}</div>;
           })}
         </div>
       </div>

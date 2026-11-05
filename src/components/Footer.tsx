@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-[#050a24] pt-20 pb-10">
+    <footer className="relative overflow-hidden bg-[#050a24] pt-12 pb-8 md:pt-20 md:pb-10">
       {/* Decorative icons on the left side */}
       <Image
         src={Icons}
@@ -18,11 +18,11 @@ export default function Footer() {
       <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-[#EF9E41] to-white opacity-80"></div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 lg:gap-8 mb-10 md:mb-16">
           {/* Section 1: Logo & Description */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <Link href="/" className="inline-block">
-              <span className="text-3xl md:text-4xl font-extrabold tracking-wide text-white">
+              <span className="text-2xl md:text-4xl font-extrabold tracking-wide text-white">
                 Land<span className="text-[#EF9E41]">wala</span>
               </span>
             </Link>
@@ -35,10 +35,10 @@ export default function Footer() {
 
           {/* Section 2: Quick Links */}
           <div className="lg:pl-12">
-            <h3 className="text-[#EF9E41] font-bold text-lg mb-6">
+            <h3 className="text-[#EF9E41] font-bold text-base md:text-lg mb-4 md:mb-6">
               Quick Links
             </h3>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
+            <ul className="grid grid-cols-2 gap-y-3 gap-x-6 md:gap-x-8">
               {[
                 { name: "Home", href: "/" },
                 { name: "Properties", href: "/#properties" },
@@ -63,10 +63,10 @@ export default function Footer() {
           </div>
 
           {/* Section 3: Social & Address */}
-          <div className="lg:pl-8 space-y-8">
+          <div className="lg:pl-8 grid grid-cols-1 gap-8 md:block md:space-y-8">
             {/* Social Media */}
             <div>
-              <h3 className="text-[#EF9E41] font-bold text-lg mb-6">
+              <h3 className="text-[#EF9E41] font-bold text-base md:text-lg mb-4 md:mb-6">
                 Connect With Us
               </h3>
               <div className="flex gap-4">
@@ -96,7 +96,7 @@ export default function Footer() {
 
             {/* Address */}
             <div>
-              <h3 className="text-[#EF9E41] font-bold text-lg mb-4">
+              <h3 className="text-[#EF9E41] font-bold text-base md:text-lg mb-3 md:mb-4">
                 Office Address
               </h3>
               <div className="flex items-start gap-3 text-gray-400 text-sm leading-relaxed">
@@ -118,7 +118,7 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 font-medium">
+        <div className="border-t border-white/10 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4 text-center text-xs text-gray-500 font-medium">
           <p>© 2025 LANDWALAA PRIVATE LIMITED | All Rights Reserved</p>
           <div className="flex gap-6">
             <Link

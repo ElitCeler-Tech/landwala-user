@@ -81,9 +81,9 @@ export default function LandRegistrationForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mb-20">
+    <div className="max-w-xl mx-auto mb-8 md:mb-20">
       {/* Header - Outside the box */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-6 md:mb-10">
         <h1 className="text-xl font-semibold text-gray-900 mb-2">
           Land Registration
         </h1>
@@ -93,7 +93,7 @@ export default function LandRegistrationForm() {
       </div>
 
       {/* Box Form */}
-      <section className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100 min-h-[600px] flex flex-col">
+      <section className="bg-white rounded-3xl shadow-2xl p-5 md:p-12 border border-gray-100 min-h-[600px] flex flex-col">
         {/* Form Content */}
         <div className="w-full flex-grow">
           <div className="mb-8 text-center">
@@ -157,7 +157,7 @@ export default function LandRegistrationForm() {
 
               {/* Mobile Number */}
               <div className="flex w-full border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#2D336B] transition-colors bg-white">
-                <div className="flex items-center px-4 border-r border-gray-200 gap-2 bg-gray-50/10">
+                <div className="flex items-center px-3 md:px-4 border-r border-gray-200 gap-1.5 md:gap-2 bg-gray-50/10">
                   <div className="w-6 h-4 relative rounded-sm overflow-hidden bg-gray-100 flex flex-col">
                     <div className="bg-[#FF9933] h-1/3 w-full"></div>
                     <div className="bg-white h-1/3 w-full flex items-center justify-center">
@@ -173,7 +173,7 @@ export default function LandRegistrationForm() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Enter your mobile number"
-                  className="flex-1 px-5 py-4 text-gray-700 outline-none font-normal"
+                  className="flex-1 min-w-0 md:min-w-auto px-4 md:px-5 py-4 text-gray-700 outline-none font-normal"
                 />
               </div>
 

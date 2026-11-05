@@ -151,7 +151,7 @@ export default function LegalVerificationForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mb-20">
+    <div className="max-w-xl mx-auto mb-8 md:mb-20">
       <section className="bg-white rounded-3xl shadow-xl p-6 md:p-10 border border-gray-100">
         <div className="flex items-center mb-6">
           <Link href="/" className="mr-4">

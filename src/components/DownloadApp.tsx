@@ -4,15 +4,15 @@ import Image from "next/image";
 
 const DownloadApp = () => {
   return (
-    <section className="bg-white py-20 px-4 md:px-4 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto bg-[#FFFBF2] rounded-[30px] px-5 py-12 md:px-8 lg:px-12 relative overflow-hidden shadow-sm border border-orange-100">
+    <section className="bg-white pt-4 pb-12 md:py-20 px-4 md:px-4 lg:px-8 font-sans">
+      <div className="max-w-7xl mx-auto bg-[#FFFBF2] rounded-3xl md:rounded-[30px] px-5 py-8 md:py-12 md:px-8 lg:px-12 relative overflow-hidden shadow-sm border border-orange-100">
         {/* Left Content */}
         <div className="relative z-10 max-w-2xl space-y-3 flex-1 pb-6 lg:pb-8">
           <div>
             <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-[#050a24] mb-1 leading-tight">
               Download Landwalaa Mobile App
             </h2>
-            <p className="text-base text-gray-500 font-medium leading-relaxed">
+            <p className="text-sm md:text-base text-gray-500 font-medium leading-relaxed">
               and discover verified open & agricultural plots near you
             </p>
           </div>
@@ -28,14 +28,14 @@ const DownloadApp = () => {
                 <div className="mt-1 w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-[#0066FF]">
                   <Icon icon="mdi:check" className="w-3 h-3" />
                 </div>
-                <span className="text-gray-700 text-sm leading-loose">
+                <span className="text-gray-700 text-sm leading-relaxed md:leading-loose">
                   {text}
                 </span>
               </li>
             ))}
           </ul>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <div className="flex flex-row flex-wrap gap-3 sm:gap-4 pt-4">
             {/* Google Play Button */}
             <a
               href="#"

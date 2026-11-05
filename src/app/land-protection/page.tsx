@@ -58,18 +58,18 @@ export default function LandProtectionPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
 
-      <div className="max-w-2xl mx-auto py-8">
-        <div className="flex items-center gap-2 mb-12">
+      <div className="max-w-2xl mx-auto px-4 md:px-0 pt-22 pb-8 md:py-8">
+        <div className="flex items-center gap-2 mb-4 md:mb-12">
           <Link
             href="/"
             className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <ChevronLeft className="w-8 h-8 text-black" />
+            <ChevronLeft className="w-7 h-7 md:w-8 md:h-8 text-black" />
           </Link>
         </div>
 
         <div className="flex flex-col items-center text-center">
-          <div className="w-24 h-24 bg-[#1d2567] rounded-full flex items-center justify-center mb-6 shadow-lg relative">
+          <div className="w-16 h-16 md:w-24 md:h-24 bg-[#1d2567] rounded-full flex items-center justify-center mb-4 md:mb-6 shadow-lg relative">
             <svg
               width="28"
               height="28"
@@ -92,35 +92,35 @@ export default function LandProtectionPage() {
             </svg>
           </div>
 
-          <h2 className="text-3xl font-medium text-black mb-4">
+          <h2 className="text-2xl md:text-3xl font-medium text-black mb-2 md:mb-4">
             Land Protection
           </h2>
-          <p className="text-xl text-black font-medium leading-relaxed mb-10">
+          <p className="text-base md:text-xl text-black font-medium leading-relaxed mb-6 md:mb-10">
             Keep Your Land Safe & Legally <br /> Protected
           </p>
-          <div className="bg-[#E9EBEF] rounded-2xl p-8 mb-6 w-full shadow-sm">
-            <p className="text-black text-xl px-10 leading-relaxed">
+          <div className="bg-[#E9EBEF] rounded-2xl p-5 md:p-8 mb-4 md:mb-6 w-full shadow-sm">
+            <p className="text-black text-[15px] md:text-xl md:px-10 leading-relaxed">
               Get real-time monitoring, periodic inspections, and boundary
               verification so your land stays secure even when you&apos;re far away.
             </p>
           </div>
 
-          <div className="bg-[#E9EBEF] rounded-2xl p-8 w-full text-left shadow-sm mb-12">
-            <h3 className="text-[#000a58] text-xl font-medium mb-8">
+          <div className="bg-[#E9EBEF] rounded-2xl p-5 md:p-8 w-full text-left shadow-sm mb-8 md:mb-12">
+            <h3 className="text-[#000a58] text-lg md:text-xl font-medium mb-5 md:mb-8">
               What You Get
             </h3>
 
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-5 md:gap-8">
               {FEATURES.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="flex items-start gap-5">
-                  <div className="w-12 h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
-                    <Icon className="text-white w-6 h-6" />
+                <div key={title} className="flex items-start gap-3 md:gap-5">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1d2567] flex items-center justify-center shrink-0">
+                    <Icon className="text-white w-5 h-5 md:w-6 md:h-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-black text-lg mb-1">
+                    <h4 className="font-bold text-black text-base md:text-lg mb-1">
                       {title}
                     </h4>
-                    <p className="text-black text-lg">{desc}</p>
+                    <p className="text-black text-[15px] md:text-lg">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -130,7 +130,7 @@ export default function LandProtectionPage() {
           {/* The app routes Continue through the walkthrough videos, which then
               hand off to the quote form. */}
           <Link href="/land-protection/videos" className="w-full">
-            <button className="w-full bg-[#1d2567] text-white font-semibold text-lg py-4 rounded-xl shadow-lg hover:opacity-90 transition-opacity cursor-pointer">
+            <button className="w-full bg-[#1d2567] text-white font-semibold text-base md:text-lg py-3.5 md:py-4 rounded-xl shadow-lg hover:opacity-90 transition-opacity cursor-pointer">
               Continue
             </button>
           </Link>

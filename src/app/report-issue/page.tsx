@@ -55,12 +55,12 @@ export default function ReportIssuePage() {
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <Header />
 
-      <main className="grow container mx-auto px-4 md:px-6 py-12">
+      <main className="grow container mx-auto px-4 md:px-6 pt-24 pb-12 md:py-12">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-center text-[#1d2567] mb-4">
+          <h1 className="text-2xl md:text-4xl font-bold text-center text-[#1d2567] mb-3 md:mb-4">
             Report a Bug
           </h1>
-          <p className="text-gray-600 text-center mb-10">
+          <p className="text-gray-600 text-center mb-6 md:mb-10">
             Help us fix issues faster by submitting a quick report.
           </p>
 

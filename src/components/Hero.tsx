@@ -195,7 +195,7 @@ function Hero() {
 
       {/* Video Section */}
       {/* Video Section */}
-      <section className="bg-black w-full h-screen relative overflow-hidden">
+      <section className="bg-black w-full aspect-video md:aspect-auto md:h-screen relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

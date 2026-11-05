@@ -20,12 +20,8 @@ function PaymentStatusContent() {
     const verifyPayment = async () => {
       try {
         const response = await subscriptionPurchaseApi.verifyOrder(orderId);
-        // Adjust based on actual API response structure
-        if (
-          response.status === "SUCCESS" ||
-          response.status === "PAID" ||
-          response.status === "ACTIVE"
-        ) {
+        // The backend returns { orderId, orderStatus, isPaid, ... }.
+        if (response.isPaid === true || response.orderStatus === "PAID") {
           setStatus("success");
           setMessage("Your subscription has been successfully activated.");
         } else {

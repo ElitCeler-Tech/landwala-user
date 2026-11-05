@@ -383,6 +383,28 @@ export const authApi = {
     return response.data;
   },
 
+  /** Mobile number login, step one. Same flow as the app: a 10 digit Indian
+   *  number in, a 4 digit SMS code out. accountExists is false for an unknown
+   *  number, so the caller can send the visitor to signup instead. */
+  requestPhoneOtp: async (
+    phoneNumber: string,
+  ): Promise<{ message: string; accountExists: boolean }> => {
+    const response = await api.post("/auth/login-otp/request", { phoneNumber });
+    return response.data;
+  },
+
+  /** Mobile number login, step two. Returns the same session as email login. */
+  verifyPhoneOtp: async (
+    phoneNumber: string,
+    otp: string,
+  ): Promise<GoogleAuthResponse> => {
+    const response = await api.post("/auth/login-otp/verify", {
+      phoneNumber,
+      otp,
+    });
+    return response.data;
+  },
+
   signup: async (credentials: {
     email: string;
     password: string;
@@ -521,7 +543,8 @@ export interface LegalVerificationResponse {
 }
 
 export interface LegalVerificationListResponse {
-  applications: LegalVerificationResponse[];
+  /** The backend names this list "verifications". */
+  verifications: LegalVerificationResponse[];
   total: number;
   page: number;
   limit: number;
@@ -569,16 +592,18 @@ export const legalVerificationApi = {
 
 export interface LandRegistrationEnquiry {
   id: string;
-  propertyId: string;
-  propertyTitle?: string;
   status: string;
+  name?: string;
+  location?: string;
+  plotType?: string;
   message?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface LandRegistrationEnquiriesResponse {
-  enquiries: LandRegistrationEnquiry[];
+  /** The backend names this list "registrations". */
+  registrations: LandRegistrationEnquiry[];
   total: number;
   page: number;
   limit: number;
@@ -730,6 +755,20 @@ export const landProtectionApi = {
       "/land-protection/request-quote",
       formData,
       { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return response.data;
+  },
+
+  /** Settles a paid request: checks the order with Cashfree server side, marks
+   *  it paid and accepted, records the plan and notifies the customer. This is
+   *  what the app calls; GET /payments/verify alone only flips the paid flag. */
+  confirmPayment: async (
+    requestId: string,
+    body: { orderId: string; planTitle?: string; planAmount?: number },
+  ): Promise<{ id: string; paymentStatus: string; status: string }> => {
+    const response = await api.post(
+      `/land-protection/requests/${requestId}/confirm-payment`,
+      body,
     );
     return response.data;
   },
