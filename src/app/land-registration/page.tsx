@@ -11,7 +11,7 @@ export default function LandRegistrationPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900">
       <Header />
 
-      <div className="max-w-4xl mx-auto px-4 pt-24 pb-8 md:py-8">
+      <div className="max-w-4xl mx-auto px-4 pt-24 pb-8 md:pt-28 md:pb-8">
         {/* Navigation */}
         <div className="flex items-center mb-6 md:mb-8">
           <Link

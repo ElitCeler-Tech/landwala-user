@@ -47,7 +47,7 @@ export default function LoanEligibilityPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900 flex flex-col">
       <Header />
 
-      <div className="flex-grow flex flex-col items-center pt-24 pb-10 md:py-20 px-4">
+      <div className="flex-grow flex flex-col items-center pt-24 pb-10 md:pt-28 md:pb-20 px-4">
         <h1 className="text-2xl font-semibold text-black mb-8 md:mb-12 text-center">
           Loan Eligibility
         </h1>

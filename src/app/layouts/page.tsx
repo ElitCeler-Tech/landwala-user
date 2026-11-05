@@ -18,7 +18,7 @@ export default function LayoutsLandingPage() {
         <main className="min-h-screen bg-white font-sans text-gray-900">
             <Header />
 
-            <div className="max-w-2xl mx-auto px-4 md:px-6 pt-22 md:pt-8 pb-12 md:pb-32">
+            <div className="max-w-2xl mx-auto px-4 md:px-6 pt-22 md:pt-28 pb-12 md:pb-32">
                 <div className="flex items-center gap-2 md:gap-4 mb-6 md:mb-12">
                     <Link
                         href="/"

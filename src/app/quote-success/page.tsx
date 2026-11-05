@@ -11,7 +11,7 @@ export default function QuoteSuccessPage() {
     <main className="min-h-screen bg-white font-sans text-gray-900 flex flex-col">
       <Header />
 
-      <div className="flex-grow flex flex-col items-center justify-center py-20 px-4">
+      <div className="flex-grow flex flex-col items-center justify-center pt-28 pb-20 px-4">
         <h1 className="text-2xl font-semibold text-black mb-16">
           My Verifications
         </h1>
